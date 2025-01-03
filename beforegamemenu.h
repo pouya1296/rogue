@@ -2,6 +2,7 @@
 #include "setting.h"
 #include "game.h"
 #include "profile.h"
+#include "scoreboard.h"
 
 void startbeforegame(char username[100]){
     int color = 1;
@@ -12,6 +13,7 @@ void startbeforegame(char username[100]){
          clear();
          curs_set(false);
          noecho();
+         cbreak();
     int boxheight = 25;
     int boxwidth = 80;
     int y_box = (LINES - boxheight) /2;
@@ -74,6 +76,7 @@ void startbeforegame(char username[100]){
         curs_set(false);
     }
     else if(choice == 2){
+        startscore(username);
     }
     else if(choice == 3){
       startsetting(&difficulty, &color, &music);    }
@@ -84,4 +87,5 @@ void startbeforegame(char username[100]){
       break;
     }
     clear();
-    }}
+    }
+    nocbreak();}

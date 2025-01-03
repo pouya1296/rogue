@@ -17,6 +17,7 @@
 #define maxy 39
 #define middle_x COLS /2
 #define middle_y LINES /2
+
 typedef struct{
     int x;
     int y;
@@ -52,6 +53,7 @@ typedef struct{
 typedef struct{
 char map[4][152][40];
 char realmap[4][152][40];
+char username[100];
 room rooms[4][6];
 position player;
 int numberofrooms;
@@ -68,6 +70,29 @@ int experience;
 int totalscore;
 int endgame;
 } data;
+
+
+void adduser(data* users) {
+    FILE *file = fopen("database.dat", "ab");
+    fwrite(users, sizeof(data), 1, file);
+    fclose(file);
+}
+
+int updateUser( char username[], data *user) {
+    FILE *file = fopen("database.dat", "r+b");
+    data temp;
+    while (fread(&temp, sizeof(data), 1, file) == 1) {
+        if (strcmp(temp.username, username) == 0) {
+            fseek(file, -sizeof(data), SEEK_CUR);
+            fwrite(user, sizeof(data), 1, file);
+            fclose(file);
+            return 1; 
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
 
 int roomsearch(room rooms[], int x, int y){
     for(int i =0 ; i<6; i++){
@@ -727,7 +752,7 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     else if((map[x][y] == 'E'))
     attron(COLOR_PAIR(1));
     else if((map[x][y] == 'B'))
-    attron(COLOR_PAIR(1));
+    attron(COLOR_PAIR(4));
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -790,6 +815,8 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(4));
      else if((map[x][y] == 'E'))
     attroff(COLOR_PAIR(1));
+    else if((map[x][y] == 'B'))
+    attroff(COLOR_PAIR(4));
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -851,6 +878,8 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 starttheme(realmap, i, j, rooms, level);
                 if(realmap[i][j] == 'd')
                 mvaddwstr(j,i,L"Δ");
+                else if(realmap[i][j] == 'B')
+                mvprintw(j, i, "\u03A6");
                 else
                 mvprintw(j,i,"%c", realmap[i][j]);
                 endtheme(realmap, i, j, rooms, level);
@@ -863,6 +892,8 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                             starttheme(map, z, a, rooms, level);
                 if(map[z][a] == 'd')
                 mvaddwstr(a,z,L"Δ");
+                else if(realmap[z][a] == 'B')
+                mvprintw(a, z, "\u03A6");
                 else{
                 if(map[z][a] != '#'){
                 mvprintw(a,z,"%c", map[z][a]);}}
@@ -962,6 +993,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 starttheme(map[*level], i, j, rooms[*level], *level);
                 if(map[*level][i][j] == 'd')
                 mvaddwstr(j,i, L"Δ");
+                else if(map[*level][i][j] == 'B')
+                mvprintw(j, i, "\u03A6");
                 else
                 mvprintw(j,i,"%c", map[*level][i][j]);
                 endtheme(map[*level], i, j, rooms[*level], *level);
@@ -1337,13 +1370,12 @@ init_pair(1,COLOR_RED, COLOR_BLACK);
 init_pair(2, COLOR_BLUE, COLOR_BLACK);
 init_pair(3, COLOR_GREEN, COLOR_BLACK);
 init_pair(4, COLOR_YELLOW,COLOR_BLACK );
-
+init_pair(5,COLOR_MAGENTA , COLOR_BLACK);
+init_pair(6,COLOR_CYAN , COLOR_BLACK);
 SDL_Init(SDL_INIT_AUDIO);
 
 data game;
 if(loadgame(username, &game) && (game.endgame != 1)){
-
-
 
 startmusic(game.music);
 int invalid =0;
@@ -1361,6 +1393,7 @@ int goldsave =0;
 
 halfdelay(10);
 while(1){
+    clear();
 int roomnumber =roomsearch(game.rooms[game.level], game.player.x, game.player.y);
 if(roomnumber !=-1){
     if(game.rooms[game.level][roomnumber].theme != Nightmare){
@@ -1369,7 +1402,6 @@ if(roomnumber !=-1){
 int input =0;
 int hittype =0;
 int fire =0; 
-clear();
 if(passwordmode == 1){
     start_time = time(NULL);
     passwordmode =0;
@@ -1409,16 +1441,14 @@ printmessage(hittype, fire, invalid);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
 refresh();
 
-if(game.endgame == 1){
-    game.totalscore += game.gold *10;
-    game.experience +=1;
-    savegame(username, &game);
-    break;
-}
 input = getch();
 if(input != ERR){
 if(input == 27){
-    if(1)
+    if(updateUser(username, &game)){
+
+    }
+    else
+    adduser(&game);
     savegame(username, &game);
     break;
 }
@@ -1428,15 +1458,29 @@ if(input == 27){
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
-}}
 }
+if(game.endgame == 1){
+    game.totalscore += game.gold *10;
+    game.experience +=1;
+    if(updateUser(username, &game)){
 
+    }
+    else
+    adduser(&game);
+    savegame(username, &game);
+    
+    break;
+}
+}
+}
+nocbreak();
 endmusic(game.music);
 SDL_Quit();
 clear();
 endwin();}
 
 else{
+    nocbreak();
 SDL_Quit();
 clear();
 endwin();
@@ -1463,22 +1507,21 @@ SDL_Init(SDL_INIT_AUDIO);
 startmusic(music);
 data game;
 if(!isguest){
-    if((loadgame(username, &game)) && (game.endgame !=1)){
-
-    }
+    if((loadgame(username, &game)) ){
+            game.totalscore += game.gold * 10;
+            }
     else{
-       int numberofrooms;
- game.level = 0;
- game.playerhp = 0;
- game.gold = 0;
- game.endgame =0;
+        game.experience =0;
+        game.totalscore =0;
     }
 }
 for(int i =0; i<4; i++){
 initializemap(game.map[i]);
 initializemap(game.realmap[i]);
 }
+strcpy(game.username, username);
 game.numberofrooms = 6;
+game.gold =0;
 game.playerhp = 100 - 25 * difficulty;
 game.level =0;
 game.hits =0;
@@ -1487,6 +1530,7 @@ game.difficulty = difficulty;
 game.music = music;
 game.ancient = 0;
 game.brokenancient =0;
+ game.endgame =0;
 for(int j =0; j<4; j++){
 for(int i =0; i<game.numberofrooms; i++){
 initializerooms(game.rooms[j][i]);}}
@@ -1509,6 +1553,7 @@ int goldsave =0;
 
 halfdelay(10);
 while(1){
+    clear();
     int roomnumber =roomsearch(game.rooms[game.level], game.player.x, game.player.y);
 if(game.rooms[game.level][roomnumber].theme != Nightmare){
     game.rooms[game.level][roomnumber].isvisible = 1;
@@ -1516,7 +1561,6 @@ if(game.rooms[game.level][roomnumber].theme != Nightmare){
 int input =0;
 int hittype =0;
 int fire =0; 
-clear();
 if(passwordmode == 1){
     start_time = time(NULL);
     passwordmode =0;
@@ -1557,18 +1601,18 @@ printmessage(hittype, fire, invalid);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
 refresh();
 
-if(game.endgame == 1){
-    game.totalscore += game.gold *10;
-    game.experience +=1;
-    savegame(username, &game);
-    break;
-}
 
 input = getch();
 if(input != ERR){
 if(input == 27){
     if(!isguest)
     savegame(username, &game);
+    if(updateUser(username, &game)){
+
+    }
+    else{
+        adduser(&game);
+    }
     break;
 }
  else{
@@ -1578,8 +1622,20 @@ if(input == 27){
         pass(password, game,invalid, 0, username);
      }
 }}
-}
+if(game.endgame == 1){
+    game.totalscore += game.gold *10;
+    game.experience +=1;
+    savegame(username, &game);
+    if(updateUser(username, &game)){
 
+    }
+    else{
+        adduser(&game);
+    }
+    break;
+}
+}
+nocbreak();
 endmusic(music);
 SDL_Quit();
 clear();

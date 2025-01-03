@@ -8,6 +8,7 @@
          clear();
          curs_set(false);
          noecho();
+         cbreak();
     int boxheight = 25;
     int boxwidth = 80;
     int y_box = (LINES - boxheight) /2;
@@ -19,7 +20,7 @@
     keypad(stdscr, true);
     refresh();
     wrefresh(window);
-    char names[10][20] = {"ROCKSTAR", "LOSE YOURSELF", "TABESTOON KOOTAHE","SWEET DREAMS", "ADDICTED", "INT THE END", "RANDOM", "OFF"};
+    char names[10][20] = {"ROCKSTAR", "LOSE YOURSELF", "COMFORTABLY NUMB","SWEET DREAMS", "ADDICTED", "INT THE END", "RANDOM", "OFF"};
     int choice =0;
     srand(time(0));
     while(1){
@@ -90,4 +91,5 @@
         return 7;   
     }
     clear();
-    }}
+    }
+    nocbreak();}

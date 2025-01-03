@@ -11,6 +11,7 @@ void startmenu(){
          clear();
          curs_set(false);
          noecho();
+         cbreak();
     int boxheight = 25;
     int boxwidth = 80;
     int y_box = (LINES - boxheight) /2;
@@ -93,6 +94,7 @@ void startmenu(){
       clear();
 
     }
+    nocbreak();
 
 }
 

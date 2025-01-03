@@ -12,7 +12,7 @@ void printprofile(char newusername[100], WINDOW *window){
         int removelast = strlen(information) -1;
         information[removelast] = '\0';
         if(found){
-            if(printflag == 9){
+            if(printflag == 5){
                 break;
             }
             else{
@@ -57,4 +57,5 @@ void startprofile(char username[100]){
    wrefresh(window);
    getch();
    clear();
+   nocbreak();
 }
