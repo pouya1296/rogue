@@ -67,6 +67,7 @@ void startbeforegame(char username[100]){
         }
 
     }
+    delwin(window);
     if(choice == 0){
        startgame(difficulty, color, music, username, 0); 
        curs_set(false);

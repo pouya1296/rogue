@@ -56,6 +56,7 @@ void startprofile(char username[100]){
    mvwprintw(window, 10, 1, "Press any key to return to the menu");
    wrefresh(window);
    getch();
+   delwin(window);
    clear();
    nocbreak();
 }

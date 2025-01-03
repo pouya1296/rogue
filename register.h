@@ -67,6 +67,7 @@ void printerror(int errortype, WINDOW *window){
         mvwprintw(window, 4, 1, "Password must contain at least one number");
     }
 }
+
 int isemailvalid(char email[100]){
     int atsign =0;
     int i =0;
@@ -159,13 +160,13 @@ srand(time(0));
     char answer[100] = {0};
     int boxheight = 25;
     int boxwidth = 80;
-    int y_box = (LINES - boxheight) /2;
-    int x_box = (COLS - boxwidth) /2;
+    int starty = (LINES - boxheight) /2;
+    int startx = (COLS - boxwidth) /2;
     
     init_pair(1,COLOR_WHITE, COLOR_BLACK);
 
    FILE *file = fopen("userinformation.txt", "a");
-   WINDOW *window = newwin(boxheight, boxwidth, y_box, x_box);
+   WINDOW *window = newwin(boxheight, boxwidth, starty, startx);
    box(window, 0, 0);
    wbkgd(window, COLOR_PAIR(1));
    refresh();
@@ -259,12 +260,14 @@ while (1)
    wrefresh(window);
 
 
-   fprintf(file, "username:%s\npassword:%s\nemail:%s\nquestion:%s\nanswer:%s\nscore:\ngold:\nexperience:\n", username, password, email, question, answer);
+   fprintf(file, "username:%s\npassword:%s\nemail:%s\nquestion:%s\nanswer:%s\n", username, password, email, question, answer);
    fclose(file);
    noecho();
   getch();
   curs_set(false);
   clear();
+  delwin(window);
+  nocbreak();
 
 
 }

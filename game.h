@@ -56,6 +56,7 @@ char realmap[4][152][40];
 char username[100];
 room rooms[4][6];
 position player;
+int rank;
 int numberofrooms;
 int level;
 int playerhp;
@@ -69,6 +70,7 @@ int brokenancient;
 int experience;
 int totalscore;
 int endgame;
+int numberofgames;
 } data;
 
 
@@ -1382,8 +1384,9 @@ int invalid =0;
 char password[4] = {0};
 char copypass[4] = {0};
 position save;
-time_t start_time = time(NULL);
-int remaining_time = 30;
+time_t temptime = time(NULL);
+time_t starttime = time(NULL);
+int remaining = 30;
 int passwordmode = 0;
 int passend =1;
 int changepass= 0;
@@ -1403,19 +1406,19 @@ int input =0;
 int hittype =0;
 int fire =0; 
 if(passwordmode == 1){
-    start_time = time(NULL);
+    temptime = time(NULL);
     passwordmode =0;
     passend =0;
     changepass = rand() % 10;
     isold = rand() %6;
 }
-if(remaining_time <=0){
+if(remaining <=0){
     passend =1;
-    remaining_time = 30;
+    remaining = 30;
 }
 if((!passend)){
-    remaining_time = 30 - (int)difftime(time(NULL), start_time);
-     mvprintw(0, middle_x - 15, "Remaining time: %d seconds", remaining_time);
+    remaining = 30 - (int)difftime(time(NULL), temptime);
+     mvprintw(0, middle_x - 15, "Remaining time: %d seconds", remaining);
      if((isold == 5)&& (game.level != 2) &&(game.level != 3)){
          attron(COLOR_PAIR(1));
          mvprintw(3, middle_x -15, "password: " );
@@ -1428,7 +1431,7 @@ if((!passend)){
     mvprintw(3, middle_x -15, "password: %s", password );
     attroff(COLOR_PAIR(1));}
     if((changepass == 5)&& (game.level != 2) &&(game.level != 3)){
-        if(  ( remaining_time == 25) || ( ( remaining_time == 27)))
+        if(  ( remaining == 25) || ( ( remaining == 27)))
         pass(password, game,invalid, 0, username);
     }
 }
@@ -1444,6 +1447,7 @@ refresh();
 input = getch();
 if(input != ERR){
 if(input == 27){
+    game.experience += (int)difftime(time(NULL), starttime);
     if(updateUser(username, &game)){
 
     }
@@ -1461,7 +1465,8 @@ if(input == 27){
 }
 if(game.endgame == 1){
     game.totalscore += game.gold *10;
-    game.experience +=1;
+    game.experience += (int)difftime(time(NULL), starttime);
+    game.numberofgames +=1;
     if(updateUser(username, &game)){
 
     }
@@ -1513,6 +1518,7 @@ if(!isguest){
     else{
         game.experience =0;
         game.totalscore =0;
+        game.numberofgames =0;
     }
 }
 for(int i =0; i<4; i++){
@@ -1542,8 +1548,9 @@ int invalid =0;
 char password[4] = {0};
 char copypass[4] = {0};
 position save;
-time_t start_time = time(NULL);
-int remaining_time = 30;
+time_t temptime = time(NULL);
+time_t starttime = time(NULL);
+int remaining = 30;
 int passwordmode = 0;
 int passend =1;
 int changepass = 0;
@@ -1562,19 +1569,19 @@ int input =0;
 int hittype =0;
 int fire =0; 
 if(passwordmode == 1){
-    start_time = time(NULL);
+    temptime = time(NULL);
     passwordmode =0;
     passend =0;
     changepass = rand() % 10;
     isold = rand() %6;
 }
-if(remaining_time <=0){
+if(remaining <=0){
     passend =1;
-    remaining_time = 30;
+    remaining = 30;
 }
 if((!passend)){
-    remaining_time = 30 - (int)difftime(time(NULL), start_time);
-     mvprintw(0, middle_x - 15, "Remaining time: %d seconds", remaining_time);
+    remaining = 30 - (int)difftime(time(NULL), temptime);
+     mvprintw(0, middle_x - 15, "Remaining time: %d seconds", remaining);
      if((isold == 5)&& (game.level != 2) &&(game.level != 3)){
          attron(COLOR_PAIR(1));
          mvprintw(3, middle_x -15, "password: " );
@@ -1587,7 +1594,7 @@ if((!passend)){
     mvprintw(3, middle_x -15, "password: %s", password );
     attroff(COLOR_PAIR(1));}
     if((changepass == 5)&& (game.level != 2) &&(game.level != 3)){
-        if(  ( remaining_time == 25) || ( ( remaining_time == 27)))
+        if(  ( remaining == 25) || ( ( remaining == 27)))
         pass(password, game,invalid, 0, username);
     }
 }
@@ -1605,14 +1612,15 @@ refresh();
 input = getch();
 if(input != ERR){
 if(input == 27){
-    if(!isguest)
+    if(!isguest){
+        game.experience += (int)difftime(time(NULL), starttime);
     savegame(username, &game);
     if(updateUser(username, &game)){
 
     }
     else{
         adduser(&game);
-    }
+    }}
     break;
 }
  else{
@@ -1623,15 +1631,17 @@ if(input == 27){
      }
 }}
 if(game.endgame == 1){
+    if(!isguest){
     game.totalscore += game.gold *10;
-    game.experience +=1;
+    game.experience += (int)difftime(time(NULL), starttime);
+    game.numberofgames +=1;
     savegame(username, &game);
     if(updateUser(username, &game)){
 
     }
     else{
         adduser(&game);
-    }
+    }}
     break;
 }
 }

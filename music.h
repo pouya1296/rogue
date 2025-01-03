@@ -57,6 +57,7 @@
         }
 
     }
+    delwin(window);
     if(choice == 0){
         
        return 0;

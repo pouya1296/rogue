@@ -226,6 +226,7 @@ int startlogin(char username[100]){
   curs_set(false);
   noecho();
   clear();
+  delwin(window);
   nocbreak();
   return 1;
 

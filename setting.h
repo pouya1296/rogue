@@ -56,6 +56,7 @@ void startsetting(int* difficulty, int* color, int* music){
         }
 
     }
+    delwin(window);
     if(choice == 0){
         *difficulty = startdifficulty();
     }

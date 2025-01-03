@@ -71,6 +71,7 @@ void startmenu(){
         }
 
     }
+    delwin(window);
     if(choice == 0){
         registerUser();
         
