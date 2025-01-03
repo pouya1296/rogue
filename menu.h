@@ -81,7 +81,7 @@ void startmenu(){
         clear(); 
       }
       else{
-        startgame(1, 1, 1, username, 1);
+        startgame(1, 1, 2, username, 1);
         clear();
       }
     }

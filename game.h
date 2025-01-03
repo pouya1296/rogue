@@ -235,7 +235,7 @@ else if(number ==1){
     Mix_PlayMusic(music, -1);
 }
 else if(number == 2){
-    Mix_Music *music = Mix_LoadMUS("./tabestoon.mp3");
+    Mix_Music *music = Mix_LoadMUS("./comf.mp3");
     Mix_PlayMusic(music, -1);
 }
 else if(number == 3){
