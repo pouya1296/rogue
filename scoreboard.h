@@ -27,12 +27,8 @@ void startscore(char username[]){
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
     init_pair(4, COLOR_BLUE, COLOR_BLACK);
     data user[100];
-    data sort[100];
 int usercount =0;
 usercount =loadlusers(user);
-for(int i =0; i<usercount; i++){
-    user[i].rank = i+1; 
-}
 for(int i =0; i<usercount; i++){
     for(int j =i+1; j<usercount; j++ ){
         if(user[j].totalscore > user[i].totalscore){
@@ -63,32 +59,31 @@ for(int i =0; i<usercount; i++){
          wattroff(window, COLOR_PAIR(4));
 
         for (int i = start ; (i < usercount) && (i<start + 5); i++) {
-        int index = ranksearch(user, usercount, i+1  );
-            if(strcmp(username, user[index].username) == 0)
+            if(strcmp(username, user[i].username) == 0)
             wattron(window, A_REVERSE);
             if(i<3)
             wattron(window, COLOR_PAIR(3) | A_BOLD);
             else
             wattron(window, COLOR_PAIR(2));
-            mvwprintw(window, i -start + 2, 1, "%d" , user[index].rank);
+            mvwprintw(window, i -start + 2, 1, "%d" , i+1);
             if(i == 0){
-            mvwprintw(window, i -start + 2, 12, " LEGEND %s" , user[index].username);
-            mvwaddwstr(window,i-start +2, 11, L"🏆");
+            mvwprintw(window, i -start + 2, 12, " LEGEND %s" , user[i].username);
+            mvwprintw(window,i-start +2, 11, "🏆");
             }
             else if(i == 1){
-            mvwprintw(window, i -start + 2, 12, " MOSALAT %s" , user[index].username);
-            mvwaddwstr(window,i-start +2, 11, L"🥈");
+            mvwprintw(window, i -start + 2, 12, " MOSALAT %s" , user[i].username);
+            mvwprintw(window,i-start +2, 11, "🥈");
             }
             else if(i ==2){
-            mvwprintw(window, i -start + 2, 12, " SAVAR %s" , user[index].username);
-            mvwaddwstr(window,i-start +2, 11, L"🥉");}
+            mvwprintw(window, i -start + 2, 12, " SAVAR %s" , user[i].username);
+            mvwprintw(window,i-start +2, 11, "🥉");}
             else
-            mvwprintw(window, i -start + 2, 11, "%s" , user[index].username);
-            mvwprintw(window, i -start + 2, 30, "%d" , user[index].totalscore);
-            mvwprintw(window, i -start + 2, 47, "%d" , user[index].totalscore /10);
-            mvwprintw(window, i -start + 2, 57, "%d" , user[index].numberofgames);
-            mvwprintw(window, i -start + 2, 68, "%d" , user[index].experience);
-            if(strcmp(username, user[index].username) == 0)
+            mvwprintw(window, i -start + 2, 11, "%s" , user[i].username);
+            mvwprintw(window, i -start + 2, 30, "%d" , user[i].totalscore);
+            mvwprintw(window, i -start + 2, 47, "%d" , user[i].totalscore /10);
+            mvwprintw(window, i -start + 2, 57, "%d" , user[i].numberofgames);
+            mvwprintw(window, i -start + 2, 68, "%d" , user[i].experience);
+            if(strcmp(username, user[i].username) == 0)
             wattroff(window, A_REVERSE);
             if(i<3)
             wattroff(window, COLOR_PAIR(3) | A_BOLD);
