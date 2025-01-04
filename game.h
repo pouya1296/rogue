@@ -73,6 +73,24 @@ int endgame;
 int numberofgames;
 } data;
 
+void health(data* game)
+{
+    float fraction = (float)game->playerhp / (100 );
+    int width = (COLS / 3 - 1) * fraction;
+    mvprintw(2, 0, "[");
+    attron(COLOR_PAIR(1));
+    for (int i = 1; i <= width; ++i)
+        mvprintw(2, i, "#");
+    attroff(COLOR_PAIR(1));
+
+    attron(COLOR_PAIR(2));
+    for (int i = width + 1; i <= COLS / 3 - 1; ++i)
+        mvprintw(2, i, ".");
+    attroff(COLOR_PAIR(2));
+
+    mvprintw(2, COLS / 3, "]");
+    mvprintw(1, 0, "HP: %d", game->playerhp);
+}
 
 void adduser(data* users) {
     FILE *file = fopen("database.dat", "ab");
@@ -969,9 +987,9 @@ int passwordcheck(char password[]){
         refresh();
     }
     else if(i ==2 ){
-        attron(COLOR_PAIR(5));
+        attron(COLOR_PAIR(7));
         mvprintw(21, 70 , "wrong password!");
-        attroff(COLOR_PAIR(5));
+        attroff(COLOR_PAIR(7));
         refresh();
     }
     attron(COLOR_PAIR(1));
@@ -1094,21 +1112,25 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 if(map[*level][i][j] == '?')
                  rooms[*level][roomnumber].ishiddend = 0;
                  
-                 if(rooms[*level][roomnumber].istrap ==1){
-            if(rooms[*level][i].theme == Treasure){
-                 for(int k =0; k<4; k++){
-            if((i == rooms[*level][roomnumber].trap[k].x) && (j == rooms[*level][roomnumber].trap[k].y)){
+       for(int k =0; k<6; k++){
+        if(rooms[*level][k].istrap ==1){
+            if(rooms[*level][k].theme == Treasure){
+                 for(int z =0; z<4; z++){
+            if((i == rooms[*level][k].trap[z].x) && (j == rooms[*level][k].trap[z].y)){
                 map[*level][i][j] = '^';
+                *playerhp = *playerhp -5;
             }}
             }
-            for(int k =0; k<2; k++){
-            if((i== rooms[*level][roomnumber].trap[k].x) && (j== rooms[*level][roomnumber].trap[k].y)){
+            for(int z =0; z<2; z++){
+            if((i == rooms[*level][k].trap[z].x) && (j == rooms[*level][k].trap[z].y)){
                 map[*level][i][j] = '^';
+                *playerhp = *playerhp -5;
             }}
         }
-            }
-        }}
     }
+        }
+        }
+    }}
 
     else if((input == 'h') && (map[*level][player->x][player->y] == '<')){
         if(*level == 0){
@@ -1445,16 +1467,15 @@ if(map[*level][player->x][player->y] == '#'){
 
 void printinfo(int hp, int level, int hits, int gold, int ancient, int brokenancient, int goldsave){
     attron(COLOR_PAIR(1) | A_BOLD);
-    mvprintw(LINES -1, 20, "HP: %d", hp);
-    mvprintw(LINES -1, 40, "LEVEL: %d", level + 1);
-    mvprintw(LINES -1, 60, "HITS: %d", hits);
-    mvprintw(LINES -1, 80, "GOLD: %d", gold);
-    mvprintw(LINES -1, 95, "ANCIENTKEYS: %d", ancient);
-    mvprintw(LINES -1, 115, "BROKENKEYS: %d", brokenancient);
+    mvprintw(LINES -1, COLS/6 - 5, "LEVEL: %d", level + 1);
+    mvprintw(LINES -1, 2*COLS/6-5 , "HITS: %d", hits);
+    mvprintw(LINES -1, 3*COLS/6-5, "GOLD: %d", gold);
+    mvprintw(LINES -1, 4*COLS/6-5, "ANCIENTKEYS: %d", ancient);
+    mvprintw(LINES -1, 5*COLS/6-5, "BROKENKEYS: %d", brokenancient);
     attroff(COLOR_PAIR(1) | A_BOLD);
     if(gold != goldsave){
        attron(COLOR_PAIR(1));
-    mvprintw(3, middle_x - 9, "YOU GOT %d GOLDS!", gold - goldsave);
+    mvprintw(3, middle_x - 8, "YOU GOT %d GOLDS!", gold - goldsave);
     attroff(COLOR_PAIR(1));}
     
 
@@ -1481,15 +1502,15 @@ start_color();
 noecho();
 cbreak();
 srand(time(0));
-init_color(5, 1000, 647, 0);
 init_pair(1,COLOR_RED, COLOR_BLACK);
 init_pair(2, COLOR_BLUE, COLOR_BLACK);
 init_pair(3, COLOR_GREEN, COLOR_BLACK);
 init_pair(4, COLOR_YELLOW,COLOR_BLACK );
 init_pair(5,COLOR_MAGENTA , COLOR_BLACK);
 init_pair(6,COLOR_CYAN , COLOR_BLACK);
+init_pair(7, COLOR_WHITE, COLOR_BLACK);
 SDL_Init(SDL_INIT_AUDIO);
-
+bkgd(COLOR_PAIR(7));
 data game;
 if(loadgame(username, &game) && (game.endgame != 1)){
 
@@ -1555,6 +1576,7 @@ isold =0;
 }
 printmap(game.map[game.level], game.player, game.color, game.rooms[game.level], game.realmap[ game.level], game.level);
 printmessage(hittype, fire, invalid);
+health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
 refresh();
 
@@ -1615,14 +1637,17 @@ start_color();
 noecho();
 cbreak();
 srand(time(0));
+SDL_Init(SDL_INIT_AUDIO);
+startmusic(music);
 init_pair(1,COLOR_RED, COLOR_BLACK);
 init_pair(2, COLOR_BLUE, COLOR_BLACK);
 init_pair(3, COLOR_GREEN, COLOR_BLACK);
 init_pair(4, COLOR_YELLOW,COLOR_BLACK );
 init_pair(5,COLOR_MAGENTA , COLOR_BLACK);
 init_pair(6,COLOR_CYAN , COLOR_BLACK);
+init_pair(7, COLOR_WHITE, COLOR_BLACK);
 SDL_Init(SDL_INIT_AUDIO);
-startmusic(music);
+bkgd(COLOR_PAIR(7));
 data game;
 if(!isguest){
     if((loadgame(username, &game)) ){
@@ -1718,6 +1743,7 @@ isold =0;
 
 printmap(game.map[game.level], game.player, color, game.rooms[game.level], game.realmap[ game.level], game.level);
 printmessage(hittype, fire, invalid);
+health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
 refresh();
 
@@ -1758,6 +1784,7 @@ if(game.endgame == 1){
     break;
 }
 }
+
 nocbreak();
 endmusic(music);
 SDL_Quit();
