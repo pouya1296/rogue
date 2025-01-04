@@ -1085,6 +1085,30 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     else if(input == 'g'){
          *dontpick =1;
     }
+    
+    else if(input == 'x'){
+        for(int i = player->x -1; i<player->x + 2; i++){
+            for(int j = player->y -1; j<player->y + 2; j++){
+                int roomnumber = roomsearch(rooms[*level], i, j);
+                if(roomnumber != -1){
+                if(map[*level][i][j] == '?')
+                 rooms[*level][roomnumber].ishiddend = 0;
+                 
+                 if(rooms[*level][roomnumber].istrap ==1){
+            if(rooms[*level][i].theme == Treasure){
+                 for(int k =0; k<4; k++){
+            if((i == rooms[*level][roomnumber].trap[k].x) && (j == rooms[*level][roomnumber].trap[k].y)){
+                map[*level][i][j] = '^';
+            }}
+            }
+            for(int k =0; k<2; k++){
+            if((i== rooms[*level][roomnumber].trap[k].x) && (j== rooms[*level][roomnumber].trap[k].y)){
+                map[*level][i][j] = '^';
+            }}
+        }
+            }
+        }}
+    }
 
     else if((input == 'h') && (map[*level][player->x][player->y] == '<')){
         if(*level == 0){
