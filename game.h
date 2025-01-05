@@ -228,7 +228,7 @@ int isroomvalid(room newroom, room rooms[], int numberoffilled){
             return 0;
         }
         else if(numberoffilled ==3){
-            if((newroom.topleft.x> 3 + rooms[1].topright.x) && (newroom.topleft.y > 3)){
+            if((newroom.topleft.x> 3 + rooms[1].topright.x) && (newroom.topleft.y > 3) && (newroom.topright.x <COLS-1) ){
                 return 1;
             }
             else
@@ -249,7 +249,7 @@ int isroomvalid(room newroom, room rooms[], int numberoffilled){
             return 0;
         }
         else if(numberoffilled ==6){
-            if((newroom.topleft.x> 3 + rooms[4].topright.x) && (newroom.topleft.y> 3 + rooms[2].bottomleft.y)&& (newroom.bottomleft.y<  LINES -2)){
+            if((newroom.topleft.x> 3 + rooms[4].topright.x) && (newroom.topleft.y> 3 + rooms[2].bottomleft.y)&& (newroom.bottomleft.y<  LINES -2)&& (newroom.topright.x <COLS-1)){
                 return 1;
             }
             else
@@ -274,20 +274,20 @@ void makerandomroom(room rooms[], int numberofrooms, position* player, int level
 
         rooms[i].topleft.x = rand() %( maxx - 17);
         if(i ==0 || i ==1 || i ==2 ){
-            rooms[i].topleft.x = 6 +55 * i + rooms[i].topleft.x %15;
+            rooms[i].topleft.x = 6 +(COLS/3 + 3) * i + rooms[i].topleft.x %(COLS/3 - 20);
         }
         else{
-            rooms[i].topleft.x =6 + 55*(i -3) + rooms[i].topleft.x %15;
+            rooms[i].topleft.x =6 + (COLS/3 + 3)*(i -3) + rooms[i].topleft.x %(COLS/3 - 20);
         }
         rooms[i].topright.x = rooms[i].topleft.x + 8 + (rand() %6);
         rooms[i].bottomleft.x = rooms[i].topleft.x;
         rooms[i].bottomright.x = rooms[i].topright.x;
         rooms[i].topleft.y =  rand() % (maxy -17);
         if(i ==0 || i ==1 || i ==2 ){
-            rooms[i].topleft.y = 4  + rooms[i].topleft.x %7;
+            rooms[i].topleft.y = 4  + rooms[i].topleft.x %6;
         }
         else{
-            rooms[i].topleft.y = 20 + rooms[i].topleft.x %10;
+            rooms[i].topleft.y = LINES/2 + 4 + rooms[i].topleft.x %6;
         }
         rooms[i].topright.y = rooms[i].topleft.y;
         rooms[i].bottomleft.y = rooms[i].topleft.y + 8 + (rand() %6 );
