@@ -62,6 +62,11 @@ int count;
 } weapon;
 
 typedef struct{
+char name[100];
+int count;
+} spell;
+
+typedef struct{
 char map[4][152][40];
 char realmap[4][152][40];
 char username[100];
@@ -69,6 +74,7 @@ room rooms[4][6];
 position player;
 food flist[6];
 weapon wlist[6];
+spell slist[4];
 int hunger;
 int foodamount;
 int rank;
@@ -139,8 +145,15 @@ strcpy(game->wlist[2].name, "Magic Wand");
 strcpy(game->wlist[3].name, "Normal Arrow");
 strcpy(game->wlist[4].name, "Sword");
 
+}
 
-
+void initializespell(data* game){
+    for(int i =0; i<3; i++){
+    game->slist[i].count =0;
+}
+strcpy(game->slist[0].name, "Health");
+strcpy(game->slist[1].name, "Speed");
+strcpy(game->slist[2].name, "Damage");
 }
 
 void adduser(data* users) {
@@ -303,7 +316,7 @@ void makerandomroom(room rooms[], int numberofrooms, position* player, int level
         else{
             rooms[i].topleft.x =6 + (COLS/3 + 3)*(i -3) + rooms[i].topleft.x %(COLS/3 - 20);
         }
-        rooms[i].topright.x = rooms[i].topleft.x + 8 + (rand() %6);
+        rooms[i].topright.x = rooms[i].topleft.x + 9 + (rand() %6);
         rooms[i].bottomleft.x = rooms[i].topleft.x;
         rooms[i].bottomright.x = rooms[i].topright.x;
         rooms[i].topleft.y =  rand() % (maxy -17);
@@ -314,7 +327,7 @@ void makerandomroom(room rooms[], int numberofrooms, position* player, int level
             rooms[i].topleft.y = LINES/2 + 4 + rooms[i].topleft.x %6;
         }
         rooms[i].topright.y = rooms[i].topleft.y;
-        rooms[i].bottomleft.y = rooms[i].topleft.y + 8 + (rand() %6 );
+        rooms[i].bottomleft.y = rooms[i].topleft.y + 9 + (rand() %6 );
         rooms[i].bottomright.y = rooms[i].bottomleft.y;
         numberoffilled++;
         if(isroomvalid(rooms[i], rooms, numberoffilled)){
@@ -647,12 +660,12 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = '$';
                     rooms[i].goldamount =1 + rand() % 5;
-                }
+                }}
 
                 if(isgold == 4){
                     position gold;
-                gold.x = rooms[i].bottomleft.x + 2 + rand() % 3;
-                gold.y = rooms[i].topleft.y + 2 + rand() % 3;
+                gold.x = rooms[i].bottomleft.x + 4 + rand() % 3;
+                gold.y = rooms[i].topleft.y + 4 + rand() % 3;
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = 'b';
                     rooms[i].goldamount =5 + rand() % 5;
@@ -661,10 +674,10 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                 int istrap = rand() %3;
                 if(istrap){
                     position traps[2];
-                    traps[0].x= rooms[i].bottomleft.x + 2 + rand()%6;
-                    traps[0].y = rooms[i].topleft.y + 2 + rand() % 6;
-                     traps[1].x= rooms[i].bottomleft.x + 2 + rand()%6;
-                    traps[1].y = rooms[i].topleft.y + 2 + rand() % 6;
+                    traps[0].x= rooms[i].bottomleft.x + 3 + rand()%6;
+                    traps[0].y = rooms[i].topleft.y + 3 + rand() % 6;
+                     traps[1].x= rooms[i].bottomleft.x + 5 + rand()%6;
+                    traps[1].y = rooms[i].topleft.y + 5 + rand() % 6;
                     
                     if((map[traps[0].x][traps[0].y] == '.') && (map[traps[1].x][traps[1].y] == '.')){
                     rooms[i].istrap = 1;
@@ -682,8 +695,8 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                 int isgold = rand() %5;
                 if(1){
                 position gold;
-                gold.x = rooms[i].bottomleft.x + 2 + rand() % 3;
-                gold.y = rooms[i].topleft.y + 2 + rand() % 3;
+                gold.x = rooms[i].bottomleft.x + 3 + rand() % 3;
+                gold.y = rooms[i].topleft.y + 4 + rand() % 3;
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = '$';
                     rooms[i].goldamount =0;
@@ -693,10 +706,10 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                 int istrap = rand() %3;
                 if(istrap){
                     position traps[2];
-                    traps[0].x= rooms[i].bottomleft.x + 2 + rand()%6;
-                    traps[0].y = rooms[i].topleft.y + 2 + rand() % 6;
-                     traps[1].x= rooms[i].bottomleft.x + 2 + rand()%6;
-                    traps[1].y = rooms[i].topleft.y + 2 + rand() % 6;
+                    traps[0].x= rooms[i].bottomleft.x + 3 + rand()%6;
+                    traps[0].y = rooms[i].topleft.y + 3 + rand() % 6;
+                     traps[1].x= rooms[i].bottomleft.x + 5 + rand()%6;
+                    traps[1].y = rooms[i].topleft.y + 5 + rand() % 6;
                     
                     if((map[traps[0].x][traps[0].y] == '.') && (map[traps[1].x][traps[1].y] == '.')){
                     rooms[i].istrap = 1;
@@ -711,8 +724,8 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                 int isgold = rand() %5;
                 if((isgold<4) && (isgold !=1)){
                 position gold;
-                gold.x = rooms[i].bottomleft.x + 2 + rand() % 3;
-                gold.y = rooms[i].topleft.y + 2 + rand() % 3;
+                gold.x = rooms[i].bottomleft.x + 5 + rand() % 3;
+                gold.y = rooms[i].topleft.y + 5 + rand() % 4;
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = '$';
                     rooms[i].goldamount = 5 + rand() % 6;
@@ -721,19 +734,49 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
 
                 if((isgold == 4) || (isgold ==  1)){
                     position gold;
-                gold.x = rooms[i].bottomleft.x + 3 + rand() % 3;
-                gold.y = rooms[i].topleft.y + 3 + rand() % 3;
+                gold.x = rooms[i].bottomleft.x + 2 + rand() % 3;
+                gold.y = rooms[i].topleft.y + 2 + rand() % 3;
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = 'b';
                     rooms[i].goldamount =20 + rand() % 15;
-                }
+                }}
+
+                
+                if(1){
+                position spell1;
+                spell1.x = rooms[i].bottomleft.x + 6 + rand()%5;
+                spell1.y = rooms[i].topleft.y + 2 + rand() % 4;
+                if(map[spell1.x][spell1.y] == '.'){
+                    int type = rand()%3 +'6';
+                    map[spell1.x][spell1.y] = type;
+                }}
+                   
+                
+                if(1){
+                  position spell2;
+                spell2.x = rooms[i].bottomleft.x + 3 + rand() % 7;
+                spell2.y = rooms[i].topleft.y + 6 + rand() % 5;
+                if(map[spell2.x][spell2.y] == '.'){
+                    int type = rand()%3 +'6';
+                    map[spell2.x][spell2.y] = type;
+                }    
                 }
 
+                if(1){
+                     position spell3;
+                spell3.x = rooms[i].bottomleft.x + 4 + rand() % 6;
+                spell3.y = rooms[i].topleft.y + 7 + rand() % 2;
+                if(map[spell3.x][spell3.y] == '.'){
+                    int type = rand()%3 +'6';
+                    map[spell3.x][spell3.y] = type;
+                } 
+                }
+        
                 int istrap = rand() %3;
                 if(istrap){
                     position traps[2];
-                    traps[0].x= rooms[i].bottomleft.x + 2 + rand()%6;
-                    traps[0].y = rooms[i].topleft.y + 2 + rand() % 6;
+                    traps[0].x= rooms[i].bottomleft.x + 5 + rand()%6;
+                    traps[0].y = rooms[i].topleft.y + 4 + rand() % 6;
                      traps[1].x= rooms[i].bottomleft.x + 2 + rand()%6;
                     traps[1].y = rooms[i].topleft.y + 2 + rand() % 6;
                     
@@ -746,13 +789,12 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                     }
                 
             }}
-
             else if(rooms[i].theme == Treasure){
                 int isgold = rand() %6;
                 if(isgold<=3){
                 position gold;
-                gold.x = rooms[i].bottomleft.x + 2 + rand() % 3;
-                gold.y = rooms[i].topleft.y + 2 + rand() % 3;
+                gold.x = rooms[i].bottomleft.x + 6 + rand() % 2;
+                gold.y = rooms[i].topleft.y + 4 + rand() % 5;
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = '$';
                     rooms[i].goldamount = 20 + rand() % 6;
@@ -761,8 +803,8 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
 
                 if(isgold>3){
                     position gold;
-                gold.x = rooms[i].bottomleft.x + 3 + rand() % 3;
-                gold.y = rooms[i].topleft.y + 3 + rand() % 3;
+                gold.x = rooms[i].bottomleft.x + 3 + rand() % 4;
+                gold.y = rooms[i].topleft.y + 7 + rand() % 3;
                 if(map[gold.x][gold.y] == '.'){
                     map[gold.x][gold.y] = 'b';
                     rooms[i].goldamount =50 + rand() % 15;
@@ -771,7 +813,8 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
 
                 map[rooms[i].bottomleft.x + 1][rooms[i].topleft.y + 1] = 'E';
             }
-        }
+        
+
 if((i == firstpillar) || (i == secondpillar) || (i == thirdpillar) || (i == 5) || (i ==2)){
     int randompillar = rand() % 5;
                 if(map[rooms[i].bottomleft.x + 2 + randompillar][rooms[i].topleft.y +2 + randompillar] == '.')
@@ -781,16 +824,16 @@ if((i == firstpillar) || (i == secondpillar) || (i == thirdpillar) || (i == 5) |
         int isfood = rand() %5;
                 if(isfood <3){
                 position foodi;
-                foodi.x = rooms[i].bottomleft.x + 4 + rand() % 3;
-                foodi.y = rooms[i].topleft.y + 4 + rand() % 3;
+                foodi.x = rooms[i].bottomleft.x + 2 + rand() % 3;
+                foodi.y = rooms[i].topleft.y + 2 + rand() % 3;
                 if(map[foodi.x][foodi.y] == '.'){
                     map[foodi.x][foodi.y] = 'F';
                 }            
                 }
                 if(isfood == 1){
                   position foodi;
-                foodi.x = rooms[i].bottomleft.x + 5 + rand() % 3;
-                foodi.y = rooms[i].topleft.y + 5 + rand() % 3;
+                foodi.x = rooms[i].bottomleft.x + 6 + rand() % 3;
+                foodi.y = rooms[i].topleft.y + 7 + rand() % 3;
                 if(map[foodi.x][foodi.y] == '.'){
                     map[foodi.x][foodi.y] = 'F';
                 }    
@@ -808,16 +851,37 @@ int isweapon = rand() % 5;
                 }
                 if(isweapon == 1){
                   position weaponi;
-                weaponi.x = rooms[i].bottomleft.x + 5 + rand() % 3;
-                weaponi.y = rooms[i].topleft.y + 5 + rand() % 3;
+                weaponi.x = rooms[i].bottomleft.x + 5 + rand() % 6;
+                weaponi.y = rooms[i].topleft.y + 5 + rand() % 6;
                 if(map[weaponi.x][weaponi.y] == '.'){
                     int type = rand()%5 +'1';
                     map[weaponi.x][weaponi.y] = type;
                 }    
                 }
+
+                int isspell = rand() % 5;
+ if(isspell <3){
+                position spell4;
+                spell4.x = rooms[i].bottomleft.x + 7 + rand() % 3;
+                spell4.y = rooms[i].topleft.y + 4 + rand() % 3;
+                if(map[spell4.x][spell4.y] == '.'){
+                    int type = rand()%3 +'6';
+                    map[spell4.x][spell4.y] = type;
+                }            
+                }
+                if(isspell == 1){
+                  position spell5;
+                spell5.x = rooms[i].bottomleft.x + 6 + rand() % 3;
+                spell5.y = rooms[i].topleft.y + 2 + rand() % 8;
+                if(map[spell5.x][spell5.y] == '.'){
+                    int type = rand()%3 +'6';
+                    map[spell5.x][spell5.y] = type;
+                }    
+                }
 }
 
 }
+
 
 void makecorridor(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms){
             if(rooms[0].door[1].y >= rooms[1].door[0].y){
@@ -973,6 +1037,12 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     attron(COLOR_PAIR(5));
     else if((map[x][y] <= '5') && ((map[x][y] >= '1')))
     attron(COLOR_PAIR(4));
+    else if(map[x][y] == '6')
+    attron(COLOR_PAIR(1));
+    else if(map[x][y] == '7')
+    attron(COLOR_PAIR(2));
+    else if(map[x][y] == '8')
+    attron(COLOR_PAIR(3));
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -1041,6 +1111,12 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(5));
     else if((map[x][y] <= '5') && ((map[x][y] >= '1')))
     attroff(COLOR_PAIR(4));
+    else if(map[x][y] == '6')
+    attroff(COLOR_PAIR(1));
+    else if(map[x][y] == '7')
+    attroff(COLOR_PAIR(2));
+    else if(map[x][y] == '8')
+    attroff(COLOR_PAIR(3));
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -1115,6 +1191,12 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(j, i, "➵");
                 else if(realmap[i][j] == '5')
                 mvprintw(j, i, "Χ");
+                else if(realmap[i][j] == '6')
+                mvprintw(j, i, "♥");
+                else if(realmap[i][j] == '7')
+                mvprintw(j, i, "►");
+                else if(realmap[i][j] == '8')
+                mvprintw(j, i, "☠");
                 else
                 mvprintw(j,i,"%c", realmap[i][j]);
                 endtheme(realmap, i, j, rooms, level);
@@ -1143,6 +1225,12 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(a, z, "➵");
                 else if(map[z][a] == '5')
                 mvprintw(a, z, "Χ");
+                 else if(map[z][a] == '6')
+                mvprintw(a, z, "♥");
+                else if(map[z][a] == '7')
+                mvprintw(a, z, "►");
+                else if(map[z][a] == '8')
+                mvprintw(a, z, "☠");
                 else{
                 if(map[z][a] != '#'){
                 mvprintw(a,z,"%c", map[z][a]);}}
@@ -1312,6 +1400,12 @@ void weaponlist(data* game){
     refresh();
     wrefresh(window);
     int choice =0;
+    while(game->wlist[choice].count == 0){
+                choice++;
+                if(choice == 5)
+                break;
+                }
+                
     while(1){
         clear();
           curs_set(false);
@@ -1321,9 +1415,9 @@ void weaponlist(data* game){
     keypad(stdscr, true);
     refresh();
     wrefresh(window);
-    wattron(window,COLOR_PAIR(4) | A_BOLD);
+    wattron(window,COLOR_PAIR(2) | A_BOLD);
     mvwprintw(window, 1, boxwidth/2 -6, "WEAPON LIST");
-    wattroff(window, COLOR_PAIR(4) | A_BOLD);
+    wattroff(window, COLOR_PAIR(2) | A_BOLD);
         for(int i =0; i<6; i++){
             if(i == choice){
                 wattron(window, A_REVERSE);
@@ -1350,9 +1444,11 @@ void weaponlist(data* game){
             if(choice != 0){
                 choice--;
                 while(game->wlist[choice].count == 0){
+                if(choice == 0){
+                    if(game->wlist[choice].count == 0)
+                    choice =5;
+                break;}
                 choice--;
-                if(choice == 0)
-                break;
                 }
 
             }
@@ -1362,14 +1458,22 @@ void weaponlist(data* game){
          if(key == KEY_DOWN){
             if(choice != 5){
                 choice++;
+                if(choice !=5){
                 while(game->wlist[choice].count == 0){
+                choice++;
+                if(choice == 5)
+                break;
+                }}
+            }
+            else{
+            choice =0;
+            while(game->wlist[choice].count == 0){
                 choice++;
                 if(choice == 5)
                 break;
                 }
             }
-            else
-            choice =0;
+            
         }
         else if(key == 10){
             break;
@@ -1384,6 +1488,112 @@ void weaponlist(data* game){
             game->wlist[i].isactive =0;
         }
         game->wlist[choice].isactive =1;
+    }
+     
+    else {
+      break;
+    }
+    clear();
+    }
+}
+
+void spelllist(data* game){
+ while (1)
+    {
+         clear();
+         curs_set(false);
+         noecho();
+    int boxheight = 25;
+    int boxwidth = 80;
+    int y_box = (LINES - boxheight) /2;
+    int x_box = (COLS - boxwidth) /2;
+
+    WINDOW *window = newwin(boxheight, boxwidth, y_box, x_box);
+    box(window, 0, 0);
+    wbkgd(window, COLOR_PAIR(5));
+    keypad(stdscr, true);
+    refresh();
+    wrefresh(window);
+    int choice =0;
+    while(game->slist[choice].count == 0){
+                choice++;
+                if(choice == 3)
+                break;
+                }
+
+    while(1){
+        clear();
+          curs_set(false);
+         noecho();
+     box(window, 0, 0);
+    wbkgd(window, COLOR_PAIR(5));
+    keypad(stdscr, true);
+    refresh();
+    wrefresh(window);
+    wattron(window,COLOR_PAIR(1) | A_BOLD);
+    mvwprintw(window, 1, boxwidth/2 -5, "SPELL LIST");
+    wattroff(window, COLOR_PAIR(1) | A_BOLD);
+        for(int i =0; i<4; i++){
+            if(i == choice){
+                wattron(window, A_REVERSE);
+            }
+            if(i == 3)
+            mvwprintw(window, 1 + i, 3,"%s", "Quit");
+            else{
+            mvwprintw(window, 1 + i, 3,"%s COUNT: %d", game->slist[i].name, game->slist[i].count);
+                }
+            if(i == choice){
+                wattroff(window, A_REVERSE);
+            }
+            
+        }
+        wrefresh(window);
+
+        int key = getch();
+        if(key != ERR){
+        if(key == KEY_UP){
+            if(choice != 0){
+                choice--;
+                while(game->slist[choice].count == 0){
+                if(choice == 0){
+                    if(game->slist[choice].count == 0)
+                    choice =3;
+                break;}
+                choice--;
+                }
+            }
+            else
+            choice =3;
+        }
+         if(key == KEY_DOWN){
+            if(choice != 3){
+                choice++;
+                if(choice != 3){
+                while(game->slist[choice].count == 0){
+                choice++;
+                if(choice == 3)
+                break;
+                }}
+            }
+            else{
+            choice =0;
+            while(game->slist[choice].count == 0){
+                choice++;
+                if(choice == 3)
+                break;
+                }
+            }
+        }
+        else if(key == 10){
+            break;
+        }}
+
+
+    }
+
+    delwin(window);
+    if(choice != 3){
+        game->slist[choice].count =game->slist[choice].count -1;
     }
      
     else {
@@ -1461,6 +1671,12 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 mvprintw(j, i, "➵");
                 else if(map[*level][i][j] == '5')
                 mvprintw(j, i, "Χ");
+                 else if(map[*level][i][j] == '6')
+                mvprintw(j, i, "♥");
+                else if(map[*level][i][j] == '7')
+                mvprintw(j, i, "►");
+                else if(map[*level][i][j] == '8')
+                mvprintw(j, i, "☠");
                 else
                 mvprintw(j,i,"%c", map[*level][i][j]);
                 endtheme(map[*level], i, j, rooms[*level], *level);
@@ -1535,6 +1751,10 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
 
     else if(input == 't'){
         weaponlist(game);
+    }
+
+    else if(input == 'y'){
+        spelllist(game);
     }
 
     else if((input == 'h') && (map[*level][player->x][player->y] == '<')){
@@ -1862,36 +2082,92 @@ if(map[*level][player->x][player->y] == '#'){
         }
 
 if(map[*level][player->x][player->y] == 'F'){
+    if(!(*dontpick)){
     if(game->foodamount<5){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
         game->flist[game->foodamount].hpamount =5;
        strcpy(game->flist[game->foodamount].name ,"Normal");
          game->foodamount= game->foodamount + 1;}
          map[*level][player->x][player->y] = '.';
-    }
+    }}
+    else
+    *dontpick =0;
 }
  
  if((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')){
+    if(!(*dontpick)){
+    while(1){
+        printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
+        refresh();
+    int key = getch();
+    if(key == 'p'){ 
     if(map[*level][player->x][player->y ] == '1'){
+        if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
         game->wlist[0].count = game->wlist[0].count + 1;
         map[*level][player->x][player->y ] = '.';
     }
     else if(map[*level][player->x][player->y ] == '2'){
          map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
          game->wlist[1].count = game->wlist[1].count + 1;
     }
     else if(map[*level][player->x][player->y ] == '3'){
          map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
          game->wlist[2].count = game->wlist[2].count + 1;
     }
     else if(map[*level][player->x][player->y ] == '4'){
          map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
          game->wlist[3].count = game->wlist[3].count + 1;
     }
     else if(map[*level][player->x][player->y ] == '5'){
         map[*level][player->x][player->y ] = '.';
+        if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
         game->wlist[4].count = game->wlist[4].count + 1;
     }
+    break;
+    }
+    else if(key != ERR){
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom);
+        break;
+    }
+    }}
+    else
+    *dontpick =0;
+ }
+
+if((map[*level][player->x][player->y ] >= '6')&& (map[*level][player->x][player->y ] <= '8')){
+    if(!(*dontpick)){
+    while(1){
+        printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
+        refresh();
+    int key = getch();
+    if(key == 'p'){ 
+    if(map[*level][player->x][player->y ] == '6'){
+        if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
+        game->slist[0].count = game->slist[0].count + 1;
+        map[*level][player->x][player->y ] = '.';
+    }
+    else if(map[*level][player->x][player->y ] == '7'){
+         map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
+         game->slist[1].count = game->slist[1].count + 1;
+    }
+    else if(map[*level][player->x][player->y ] == '8'){
+         map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
+         game->slist[2].count = game->slist[2].count + 1;
+    }
+    break;
+    }
+    else if(key != ERR){
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom);
+        break;
+    }
+    }}
+    else
+    *dontpick =0;
  }
 
  for(int i =0; i<6; i++){
@@ -2276,6 +2552,7 @@ time_t htime = time(NULL);
 int hremaining =0;
 int enchantremaining =0;
 initializeweapon(&game);
+initializespell(&game);
 
 halfdelay(10);
 while(1){
