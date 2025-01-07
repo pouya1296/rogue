@@ -93,7 +93,93 @@ int experience;
 int totalscore;
 int endgame;
 int numberofgames;
+int totalgold;
 } data;
+
+#include <ncurses.h>
+#include <string.h>
+
+
+void printttt(char username[]) {
+    char text[][200] = {
+"    ⠀⠀⠀⢀⣠⣴⠶⠶⣦⣤⣀⣤⣶⣶⣶⡶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⣶⣶⣶⣦⣄⣤⣴⠶⠶⢦⣤⡀⠀⠀⠀⠀⠀ ",
+"⠀⠀⠀⠀⠀⢠⡿⠉⢀⣠⣀⣀⠈⣽⠏⠉⠉⠙⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⣿⠁⣄⣦⣤⣀⠈⠻⣦⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⣿⠀⢠⡟⠉⠉⠉⠛⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡟⠋⠉⠉⢻⡆⠀⢻⡄⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⣿⠀⢸⡇⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠈⣷⠀⢸⡇⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠠⣿⠀⠸⣇⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⢰⡏⠀⣸⠇⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⢻⣆⠀⢻⣄⠀⠀⠀⢻⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⢀⡾⠁⢀⡿⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⢻⣆⠀⠹⣧⣄⠀⠈⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠃⠀⢀⣴⠟⠁⢠⡾⠁⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠙⢷⣄⠀⠙⠻⢦⣼⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣯⣴⠾⠋⠁⣀⣴⠟⠁⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⢦⣄⣀⠈⠉⠻⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡾⠋⠁⢀⣠⣤⠾⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠲⠶⠼⢷⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⠿⠶⠶⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣦⡀⠀⠀⠀⠀⠀⣠⡾⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢷⡄⠀⠀⢀⡾⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡀⠀⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡿⠀⠀⢻⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠃⠀⠀⠈⢿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡾⠁⠀⠀⠀⠀⠀⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣁⣀⣀⣀⣀⣀⣀⣀⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡟⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠹⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠿⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠾⢷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣼⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+    };
+
+
+    int starty = 1;
+    int startx = 50;
+
+    for (int i = 0; i < 21; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+        if(i==4){
+            for(int j =0; j<strlen(username); j++){
+                mvprintw(4, startx +25 -( strlen(username))/2 + j, "%c", username[j]);
+            }
+        }
+    }
+
+ 
+}
+
+void printyoulost() {
+    char you_lost[][200] = {        
+        "____    ____   ______    __    __      __        ______        _______  ___________ ",
+        "\\   \\  /   /  /  __  \\  |  |  |  |    |  |      /  __  \\      /       ||           |",
+        " \\   \\/   /  |  |  |  | |  |  |  |    |  |     |  |  |  |    |   (----``---|  |---- ",
+        "  \\_    _/   |  |  |  | |  |  |  |    |  |     |  |  |  |     \\   \\        |  |     ",    
+        "    |  |     |  `--'  | |  `--'  |    |  `----.|  `--'  | .----)   |       |  |     ",    
+        "    |__|      \\______/   \\______/     |_______| \\______/  |_______/        |__|     "
+    };
+    
+
+
+    int starty = (LINES - 6) / 2 + 1;
+    int startx = (COLS - strlen(you_lost[0])) / 2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", you_lost[i]);
+    }
+
+}
+
+void printyouwon() {
+    char you_won[][200] = {        
+        "____    ____   ______    __    __     ____    __    ____   ______    __   __  ",
+        "\\   \\  /   /  /  __  \\  |  |  |  |    \\   \\  /  \\  /   /  /  __  \\  |  \\ |  | ",
+        " \\   \\/   /  |  |  |  | |  |  |  |     \\   \\/    \\/   /  |  |  |  | |   \\|  | ",
+        "  \\_    _/   |  |  |  | |  |  |  |      \\            /   |  |  |  | |  . `  | ",
+        "    |  |     |  `--'  | |  `--'  |       \\    /\\    /    |  `--'  | |  |\\   | ",
+        "    |__|      \\______/   \\______/         \\__/  \\__/      \\______/  |__| \\__| "                                                                           
+    };
+
+
+    int starty = (LINES - 6) / 2 + 6;
+    int startx = 2+ (COLS - strlen(you_won[0])) / 2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", you_won[i]);
+    }
+}
 
 void health(data* game)
 {
@@ -544,7 +630,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
     if(level == 3){
         for(int i =0; i<6; i++){
             int theme = rand() % 10;
-            if((theme == 5) || (theme ==6)){
+            if((theme == 5) || (theme ==6) || (theme ==1)){
                 if(rooms[i].theme == Regular){
                 rooms[i].theme = Nightmare;
                 rooms[i].isvisible =0;}
@@ -568,7 +654,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
     else{
            for(int i =0; i<6; i++){
             int theme = rand() % 10;
-            if(((theme == 5) || (theme ==6) ) && (rooms[i].theme == Regular)){
+            if(((theme == 5) || (theme ==6)|| (theme ==1) ) && (rooms[i].theme == Regular)){
                 rooms[i].theme = Nightmare;
                 rooms[i].isvisible=0;
             }
@@ -882,7 +968,6 @@ int isweapon = rand() % 5;
 
 }
 
-
 void makecorridor(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms){
             if(rooms[0].door[1].y >= rooms[1].door[0].y){
                 map[rooms[0].door[1].x + 1][rooms[0].door[1].y] ='#';
@@ -1043,6 +1128,8 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     attron(COLOR_PAIR(2));
     else if(map[x][y] == '8')
     attron(COLOR_PAIR(3));
+    else if(map[x][y] == '#')
+    attron(COLOR_PAIR(6));
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -1117,6 +1204,8 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(2));
     else if(map[x][y] == '8')
     attroff(COLOR_PAIR(3));
+    else if(map[x][y] == '#')
+    attroff(COLOR_PAIR(6));
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -1603,7 +1692,7 @@ void spelllist(data* game){
     }
 }
 
-void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom){
+void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom, int dontchoose){
     int copyx = player->x;
     int copyy = player ->y;
     if(input == 'w'){
@@ -1706,7 +1795,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         {
             savex = player->x;
             savey = player->y;
-            handleinput(player, map, key,rooms,playerhp,level, invalid, password, passwordmode,passend,ancient,brokenancient, save,color, game, dontpick, win, newroom);
+            handleinput(player, map, key,rooms,playerhp,level, invalid, password, passwordmode,passend,ancient,brokenancient, save,color, game, dontpick, win, newroom, 1);
             printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
             refresh();
         }}
@@ -2095,7 +2184,7 @@ if(map[*level][player->x][player->y] == 'F'){
 }
  
  if((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')){
-    if(!(*dontpick)){
+    if(!(*dontpick)&& (!dontchoose)){
     while(1){
         printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
         refresh();
@@ -2129,7 +2218,7 @@ if(map[*level][player->x][player->y] == 'F'){
     break;
     }
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0);
         break;
     }
     }}
@@ -2138,7 +2227,7 @@ if(map[*level][player->x][player->y] == 'F'){
  }
 
 if((map[*level][player->x][player->y ] >= '6')&& (map[*level][player->x][player->y ] <= '8')){
-    if(!(*dontpick)){
+    if(!(*dontpick)&& (!dontchoose)){
     while(1){
         printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
         refresh();
@@ -2162,7 +2251,7 @@ if((map[*level][player->x][player->y ] >= '6')&& (map[*level][player->x][player-
     break;
     }
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0);
         break;
     }
     }}
@@ -2279,8 +2368,9 @@ while(1){
     int roomnumber =roomsearch(game.rooms[game.level], game.player.x, game.player.y);
     if((roomnumber == -1) || (game.rooms[game.level][roomnumber].theme  == Regular)){
         if(isregular ==0){
+            if(game.music != 9){
         endmusic();
-        startmusic(game.music);
+        startmusic(game.music);}
     isenchant =0;
     istreasure =0;
     isnight =0;
@@ -2296,8 +2386,9 @@ if((game.rooms[game.level][roomnumber].theme  == Enchant)){
     if(isenchant ==0){
         enchanttime = time(NULL);
         isenchant = 1;
+        if(game.music != 9){
         endmusic();
-        startmusic(6);
+        startmusic(6);}
     }
 }
 else{
@@ -2312,8 +2403,9 @@ if(isenchant){
 if((game.rooms[game.level][roomnumber].theme  == Nightmare)){
     if(isnight ==0){
         isnight = 1;
+        if(game.music != 9){
         endmusic();
-        startmusic(8);
+        startmusic(8);}
     }
 }
 else{
@@ -2322,8 +2414,9 @@ else{
 if((game.rooms[game.level][roomnumber].theme  == Treasure)){
     if(istreasure ==0){
         istreasure = 1;
+        if(game.music != 9){
         endmusic();
-        startmusic(7);
+        startmusic(7);}
     }
 }
 else{
@@ -2419,15 +2512,17 @@ if(input == 27){
 }
  else{
     goldsave = game.gold;
-     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save,game.color, &game, &dontpick, &win, &newroom);
+     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save,game.color, &game, &dontpick, &win, &newroom,0);
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
 }
 if(game.endgame == 1){
-    game.totalscore += game.gold *10;
+    game.totalscore += game.gold *(game.difficulty +1);
     game.experience += (int)difftime(time(NULL), starttime);
+    game.totalgold += game.gold;
     game.numberofgames +=1;
+    
     if(updateUser(username, &game)){
 
     }
@@ -2443,7 +2538,8 @@ if(win && game.endgame){
     clear();
     cbreak();
     attron(COLOR_PAIR(1) | A_BOLD);
-    mvprintw(LINES/2, COLS/2 - 7, "GREAT! YOU WON");
+    printyouwon();
+     printttt(username);
     attroff(COLOR_PAIR(1) | A_BOLD);
     getch();
 }
@@ -2451,7 +2547,7 @@ else if(!win && game.endgame){
        clear();
        cbreak();
     attron(COLOR_PAIR(1) | A_BOLD);
-    mvprintw(LINES/2, COLS/2 - 3, "YOU LOST");
+    printyoulost();
     attroff(COLOR_PAIR(1) | A_BOLD);
     getch();
 }
@@ -2492,12 +2588,14 @@ bkgd(COLOR_PAIR(7));
 data game;
 if(!isguest){
     if((loadgame(username, &game)) ){
-            game.totalscore += game.gold * 10;
+            game.totalscore += game.gold * (difficulty + 1);
+            game.totalgold += game.gold;
             }
     else{
         game.experience =0;
         game.totalscore =0;
         game.numberofgames =0;
+        game.totalgold =0;
     }
 }
 for(int i =0; i<4; i++){
@@ -2568,8 +2666,9 @@ while(1){
      int roomnumber =roomsearch(game.rooms[game.level], game.player.x, game.player.y);
     if((roomnumber == -1) || (game.rooms[game.level][roomnumber].theme  == Regular)){
         if(isregular ==0){
+            if(game.music != 9){
         endmusic();
-        startmusic(game.music);
+        startmusic(game.music);}
     isenchant =0;
     istreasure =0;
     isnight =0;
@@ -2585,8 +2684,9 @@ if((game.rooms[game.level][roomnumber].theme  == Enchant)){
     if(isenchant ==0){
         enchanttime = time(NULL);
         isenchant = 1;
+        if(game.music != 9){
         endmusic();
-        startmusic(6);
+        startmusic(6);}
     }
 }
 else{
@@ -2601,8 +2701,9 @@ if(isenchant){
 if((game.rooms[game.level][roomnumber].theme  == Nightmare)){
     if(isnight ==0){
         isnight = 1;
+        if(game.music != 9){
         endmusic();
-        startmusic(8);
+        startmusic(8);}
     }
 }
 else{
@@ -2611,8 +2712,9 @@ else{
 if((game.rooms[game.level][roomnumber].theme  == Treasure)){
     if(istreasure ==0){
         istreasure = 1;
+        if(game.music != 9){
         endmusic();
-        startmusic(7);
+        startmusic(7);}
     }
 }
 else{
@@ -2709,16 +2811,17 @@ if(input == 27){
 }
  else{
     goldsave = game.gold;
-     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save, game.color, &game, &dontpick, &win, &newroom);
+     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save, game.color, &game, &dontpick, &win, &newroom, 0);
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
 }}
 if(game.endgame == 1){
     if(!isguest){
-    game.totalscore += game.gold *10;
+    game.totalscore += game.gold *(game.difficulty + 1);
     game.experience += (int)difftime(time(NULL), starttime);
     game.numberofgames +=1;
+    game.totalgold += game.gold;
     savegame(username, &game);
     if(updateUser(username, &game)){
 
@@ -2733,17 +2836,18 @@ cbreak();
 if(win && game.endgame){
     clear();
 
-    attron(COLOR_PAIR(1) | A_BOLD);
-    mvprintw(LINES/2, COLS/2 - 7, "GREAT! YOU WON");
-    attroff(COLOR_PAIR(1) | A_BOLD);
+    attron(COLOR_PAIR(4) | A_BOLD);
+     printyouwon();
+     printttt(username);
+    attroff(COLOR_PAIR(4) | A_BOLD);
     refresh();
     getch();
     
 }
 else if ( !win && game.endgame){
        clear();
-    attron(COLOR_PAIR(1) | A_BOLD);
-    mvprintw(LINES/2, COLS/2 - 7, "YOU LOST");
+       attron(COLOR_PAIR(1) | A_BOLD);
+    printyoulost();
     attroff(COLOR_PAIR(1) | A_BOLD);
     refresh();
     getch();

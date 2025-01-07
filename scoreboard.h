@@ -1,6 +1,42 @@
 #include <ncurses.h>
 
 
+void printtr(char username[]) {
+    char art[][100] = {        
+        "⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀",
+        "⢠⣤⣤⣤⣼⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣄⣤⣤⣠",
+        "⢸⠀⡶⠶⠾⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡷⠶⠶⡆⡼",
+        "⠈⡇⢷⠀⠀⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠇⠀⢸⢁⡗",
+        "⠀⢹⡘⡆⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡸⠀⢀⡏⡼⠀",
+        "⠀⠀⢳⡙⣆⠈⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠇⢀⠞⡼⠁⠀",
+        "⠀⠀⠀⠙⣌⠳⣼⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣞⡴⣫⠞⠀⠀⠀",
+        "⠀⠀⠀⠀⠈⠓⢮⣻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⣩⠞⠉⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠉⠛⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠞⠋⠁⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⢤⣀⠀⠀⠀⠀⢀⣠⠖⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⡇⢸⡏⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠖⠒⠓⠚⠓⠒⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⣀⣠⣞⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣙⣆⣀⡀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠓⠲⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠖⠃⠀⠀⠀⠀⠀⠀"
+    };
+
+    int starty = 0;
+    int startx =  30 +(COLS - strlen(art[0])) / 2;
+
+    for (int i = 0; i < 16; i++) {
+        mvprintw(starty + i, startx, "%s", art[i]);
+        if(i == 2){
+            for(int j = 0; j<strlen(username); j++){
+                mvprintw(2, startx+15 - strlen(username)/2+j, "%c", username[j]);
+            }
+            mvprintw(2, startx+13 - strlen(username)/2, "🏆");
+        }
+
+    }
+}
+
 int loadlusers(data users[]) {
     FILE *file = fopen("database.dat", "rb");
     int userCount = 0;
@@ -19,10 +55,10 @@ int ranksearch(data users[], int usercount, int rank){
     }
 }
 void startscore(char username[]){
+    initscr();
     noecho();
     cbreak();
-    setlocale(LC_ALL, "");
-    init_pair(1, COLOR_WHITE,  COLOR_BLACK);
+    init_pair(1, COLOR_CYAN,  COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
     init_pair(4, COLOR_BLUE, COLOR_BLACK);
@@ -38,49 +74,62 @@ for(int i =0; i<usercount; i++){
         }
     }
 }
-    int height = 10;
+    int height = 20;
     int width =80;
-    int starty = (LINES - height) /2;
+    int starty = 10 +(LINES - height) /2;
     int satartx = (COLS - width)/2;
      clear();
     WINDOW *window = newwin(height, width, starty, satartx);
     keypad(window, TRUE);
     wbkgd(window, COLOR_PAIR(1));
+     box(window, 0, 0);
     int key = 0;
     int start = 0;
     int max = height -2;
     refresh();
     while (key!= 27) {
-
+        
         werase(window);
         box(window, 0, 0);
+        attron(COLOR_PAIR(3));
+        printtr(user[0].username);
+        attroff(COLOR_PAIR(3));
         wattron(window, COLOR_PAIR(4));
          mvwprintw(window, 1, 1, "RANK      USERNAME           TOTALSCORE       GOLD      GAMES      EXPERIENCE");
          wattroff(window, COLOR_PAIR(4));
+         wrefresh(window);
+        refresh();
 
         for (int i = start ; (i < usercount) && (i<start + 5); i++) {
+            if(i ==0){
+                mvwprintw(window,i-start +2, 1, "🏆");
+            }
+            if(i == 1){
+               mvwprintw(window,i-start +2, 1, "🥈"); 
+            }
+            if(i==2){
+                mvwprintw(window,i-start +2, 1, "🥉");
+            }
             if(strcmp(username, user[i].username) == 0)
             wattron(window, A_REVERSE);
             if(i<3)
             wattron(window, COLOR_PAIR(3) | A_BOLD);
             else
             wattron(window, COLOR_PAIR(2));
-            mvwprintw(window, i -start + 2, 1, "%d" , i+1);
             if(i == 0){
-            mvwprintw(window, i -start + 2, 12, " LEGEND %s" , user[i].username);
-            mvwprintw(window,i-start +2, 11, "🏆");
+            mvwprintw(window, i -start + 2, 10, " LEGEND %s" , user[i].username);
+            
             }
             else if(i == 1){
-            mvwprintw(window, i -start + 2, 12, " MOSALAT %s" , user[i].username);
-            mvwprintw(window,i-start +2, 11, "🥈");
+            mvwprintw(window, i -start + 2, 10, " MOSALAT %s" , user[i].username);
             }
             else if(i ==2){
-            mvwprintw(window, i -start + 2, 12, " SAVAR %s" , user[i].username);
-            mvwprintw(window,i-start +2, 11, "🥉");}
-            else
-            mvwprintw(window, i -start + 2, 11, "%s" , user[i].username);
+            mvwprintw(window, i -start + 2, 10, " SAVAR %s" , user[i].username);}
+            else{
+            mvwprintw(window, i -start + 2, 1, "%d" , i+1);
+            mvwprintw(window, i -start + 2, 10, "%s" , user[i].username);}
             mvwprintw(window, i -start + 2, 30, "%d" , user[i].totalscore);
-            mvwprintw(window, i -start + 2, 47, "%d" , user[i].totalscore /10);
+            mvwprintw(window, i -start + 2, 47, "%d" , user[i].totalgold);
             mvwprintw(window, i -start + 2, 57, "%d" , user[i].numberofgames);
             mvwprintw(window, i -start + 2, 68, "%d" , user[i].experience);
             if(strcmp(username, user[i].username) == 0)
@@ -90,7 +139,6 @@ for(int i =0; i<usercount; i++){
             else
             wattroff(window, COLOR_PAIR(2));
         }
-        wrefresh(window);
         key = wgetch(window);
             if (key == KEY_UP){
                 if (start > 0) 
@@ -102,6 +150,7 @@ for(int i =0; i<usercount; i++){
     }
 
     delwin(window);
-     nocbreak();
+
      clear();
+      endwin();
 }
