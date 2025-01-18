@@ -17,11 +17,24 @@
 #define maxy 39
 #define middle_x COLS /2
 #define middle_y LINES /2
+#define DEAMON 0
+#define FIRE 1
+#define GIANT 2
+#define SNAKE 3
+#define UNDEED 4
+
 
 typedef struct{
     int x;
     int y;
 } position;
+
+typedef struct{
+    int kind;
+    int hp;
+    position pos;
+
+}monster;
 
 typedef struct{
     int type;
@@ -43,6 +56,8 @@ typedef struct{
     int islocked;
     int theme;
     int goldamount;
+    monster mons[4];
+    int monsnum;
 } room;
 
 typedef struct{
@@ -59,6 +74,7 @@ typedef struct{
 char name[100];
 int isactive; 
 int count;
+int damage;
 } weapon;
 
 typedef struct{
@@ -96,9 +112,10 @@ int numberofgames;
 int totalgold;
 } data;
 
+
+
 #include <ncurses.h>
 #include <string.h>
-
 
 void printttt(char username[]) {
     char text[][200] = {
@@ -226,11 +243,15 @@ void initializeweapon(data* game){
 strcpy(game->wlist[0].name, "Mace");
 game->wlist[0].count =1;
 game->wlist[0].isactive =1;
+game->wlist[0].damage =5;
 strcpy(game->wlist[1].name, "Dagger");
+game->wlist[1].damage =12;
 strcpy(game->wlist[2].name, "Magic Wand");
+game->wlist[2].damage =15;
 strcpy(game->wlist[3].name, "Normal Arrow");
+game->wlist[1].damage =5;
 strcpy(game->wlist[4].name, "Sword");
-
+game->wlist[1].damage =10;
 }
 
 void initializespell(data* game){
@@ -331,6 +352,13 @@ void initializerooms(room rooms){
         rooms.istrap =0;
         rooms.islocked =-1;
         rooms.theme =Regular;
+        for(int i =0; i<4; i++){
+        rooms.mons[i].hp =5;
+        rooms.mons[i].kind = DEAMON;
+        rooms.mons[i].pos.x =0;
+        rooms.mons[i].pos.y =0;
+        }
+        rooms.monsnum =0;
     }
 
 int isroomvalid(room newroom, room rooms[], int numberoffilled){
@@ -737,6 +765,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
 
 
         for(int i =0; i<6; i++){
+            
             if(rooms[i].theme == Regular){
                 int isgold = rand() %5;
                 if(isgold <3){
@@ -776,7 +805,45 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
 
                 }
 
+                int ismons = rand()%4;
+                if(ismons){
+                    if(ismons ==1){
+                    int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                    int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[0].kind = DEAMON;
+                        rooms[i].mons[0].hp = 5;
+                        rooms[i].mons[0].pos.x = monsx;
+                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].monsnum =1;
+                        map[monsx][monsy] = 'D';
+                    }}
+                     else if(ismons == 2){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[0].kind = FIRE;
+                        rooms[i].mons[0].hp = 10;
+                        rooms[i].mons[0].pos.x = monsx;
+                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].monsnum =1;
+                        map[monsx][monsy] = 'F';
+                    }}
+                     else if(ismons == 3){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[0].kind = GIANT;
+                        rooms[i].mons[0].hp = 15;
+                        rooms[i].mons[0].pos.x = monsx;
+                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].monsnum =1;
+                        map[monsx][monsy] = 'G';
+                    }}
+                }
+
             }
+             
              else if(rooms[i].theme == Nightmare){
                 int isgold = rand() %5;
                 if(1){
@@ -803,8 +870,49 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].trap[j].x = traps[j].x;
                         rooms[i].trap[j].y = traps[j].y;
                     }
-                    }                
-            }}
+                    }
+                            
+            }
+            
+
+                int ismons = rand()%4;
+                if(ismons){
+                    if(ismons){
+                    int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                    int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[0].kind = DEAMON;
+                        rooms[i].mons[0].hp = 5;
+                        rooms[i].mons[0].pos.x = monsx;
+                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'D';
+                    }}
+                      if(ismons >=2){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = FIRE;
+                        rooms[i].mons[rooms[i].monsnum].hp = 10;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'F';
+                    }}
+                      if(ismons == 3){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = GIANT;
+                        rooms[i].mons[rooms[i].monsnum].hp = 15;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'G';
+                    }}
+                }
+
+            }
 
             else if(rooms[i].theme == Enchant){
                 int isgold = rand() %5;
@@ -872,9 +980,47 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].trap[j].x = traps[j].x;
                         rooms[i].trap[j].y = traps[j].y;
                     }
-                    }
-                
-            }}
+                    }  
+            }
+
+             int ismons = rand()%4;
+                if(ismons){
+                    if(ismons){
+                    int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                    int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[0].kind = SNAKE;
+                        rooms[i].mons[0].hp = 20;
+                        rooms[i].mons[0].pos.x = monsx;
+                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'S';
+                    }}
+                      if(ismons >=2){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = UNDEED;
+                        rooms[i].mons[rooms[i].monsnum].hp = 30;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'U';
+                    }}
+                      if(ismons == 3){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = GIANT;
+                        rooms[i].mons[rooms[i].monsnum].hp = 15;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'G';
+                    }}
+                }
+            }
+            
             else if(rooms[i].theme == Treasure){
                 int isgold = rand() %6;
                 if(isgold<=3){
@@ -895,6 +1041,42 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                     map[gold.x][gold.y] = 'b';
                     rooms[i].goldamount =50 + rand() % 15;
                 }
+                }
+                 int ismons = rand()%4;
+                if(ismons){
+                    if(ismons){
+                    int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                    int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[0].kind = SNAKE;
+                        rooms[i].mons[0].hp = 20;
+                        rooms[i].mons[0].pos.x = monsx;
+                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'S';
+                    }}
+                      if(ismons >=2){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = UNDEED;
+                        rooms[i].mons[rooms[i].monsnum].hp = 30;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'U';
+                    }}
+                      if(ismons == 3){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = GIANT;
+                        rooms[i].mons[rooms[i].monsnum].hp = 15;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'G';
+                    }}
                 }
 
                 map[rooms[i].bottomleft.x + 1][rooms[i].topleft.y + 1] = 'E';
@@ -931,7 +1113,7 @@ int isweapon = rand() % 5;
                 weaponi.x = rooms[i].bottomleft.x + 4 + rand() % 3;
                 weaponi.y = rooms[i].topleft.y + 4 + rand() % 3;
                 if(map[weaponi.x][weaponi.y] == '.'){
-                    int type = rand()%5 +'1';
+                    int type = rand()%5 +'2';
                     map[weaponi.x][weaponi.y] = type;
                 }            
                 }
@@ -940,7 +1122,7 @@ int isweapon = rand() % 5;
                 weaponi.x = rooms[i].bottomleft.x + 5 + rand() % 6;
                 weaponi.y = rooms[i].topleft.y + 5 + rand() % 6;
                 if(map[weaponi.x][weaponi.y] == '.'){
-                    int type = rand()%5 +'1';
+                    int type = rand()%5 +'2';
                     map[weaponi.x][weaponi.y] = type;
                 }    
                 }
@@ -1695,6 +1877,7 @@ void spelllist(data* game){
 void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom, int dontchoose){
     int copyx = player->x;
     int copyy = player ->y;
+    int roomsnum = roomsearch(rooms[*level], player->x, player->y);
     if(input == 'w'){
         player->y = player->y -1;
         *invalid = 0;
@@ -1846,6 +2029,26 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         spelllist(game);
     }
 
+    else if(input == 32){
+        if(game->wlist[0].isactive == 1){
+            for(int i =player->x -1; i<player->x + 2; i++){
+                for(int j = player->y -1; j<player->y +2; j++){
+                    for(int k = 0 ; k<3; k++){
+                    if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == j)){
+                        rooms[*level][roomsnum].mons[k].hp -= 5;
+                        if(rooms[*level][roomsnum].mons[k].hp<=0){
+                        rooms[*level][roomsnum].mons[k].hp =0;
+                        map[*level][i][j] = '.';
+                        rooms[*level][roomsnum].mons[k].pos.x = -1;
+                        rooms[*level][roomsnum].mons[k].pos.y = -1;
+                        }
+                    }
+                    }
+                }
+            }
+        }
+    }
+
     else if((input == 'h') && (map[*level][player->x][player->y] == '<')){
         if(*level == 0){
         *level =1;
@@ -1895,7 +2098,9 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             player->x = copyx;
             player->y = copyy;
         }
-        
+
+
+
     if(map[*level][player ->x][player ->y] == '+'){
         if(((player ->x == rooms[*level][0].door[1].x) &&(player ->y == rooms[*level][0].door[1].y) ) ||(player ->x == rooms[*level][0].door[2].x) &&(player ->y == rooms[*level][0].door[2].y) ){
             if(rooms[*level][0].theme !=Nightmare)
@@ -2198,22 +2403,22 @@ if(map[*level][player->x][player->y] == 'F'){
     else if(map[*level][player->x][player->y ] == '2'){
          map[*level][player->x][player->y ] = '.';
          if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
-         game->wlist[1].count = game->wlist[1].count + 1;
+         game->wlist[1].count = game->wlist[1].count + 10;
     }
     else if(map[*level][player->x][player->y ] == '3'){
          map[*level][player->x][player->y ] = '.';
          if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
-         game->wlist[2].count = game->wlist[2].count + 1;
+         game->wlist[2].count = game->wlist[2].count + 8;
     }
     else if(map[*level][player->x][player->y ] == '4'){
          map[*level][player->x][player->y ] = '.';
          if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
-         game->wlist[3].count = game->wlist[3].count + 1;
+         game->wlist[3].count = game->wlist[3].count + 20;
     }
     else if(map[*level][player->x][player->y ] == '5'){
         map[*level][player->x][player->y ] = '.';
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
-        game->wlist[4].count = game->wlist[4].count + 1;
+        game->wlist[4].count = 1;
     }
     break;
     }
