@@ -474,7 +474,7 @@ void clearmessage(){
     refresh();
 }
 
-void printmessage(int hittype, int fire, int invalidcommand, int newlevel){
+void printmessage(int hittype, int fire, int invalidcommand, int newlevel, int monshp){
     if(invalidcommand == 1){
         attron(COLOR_PAIR(1) | A_BOLD);
         mvprintw(1,middle_x - 8 , "Invalid command");
@@ -493,7 +493,7 @@ void printmessage(int hittype, int fire, int invalidcommand, int newlevel){
     }
     else if(hittype == 2){
         attron(COLOR_PAIR(2) | A_BOLD);
-        mvprintw(0,middle_x - 10, "You hit the monster!");
+        mvprintw(0,middle_x - 10, "You hit the monster! HP: %d", monshp);
         refresh();
         attroff(COLOR_PAIR(2) | A_BOLD);
     }
@@ -558,6 +558,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
     int thirdpillar = firstpillar +2;
     for(int i =0; i<6; i++){
         rooms[i].theme = Regular;
+        rooms[i].monsnum =0;
     }
     if(level == 0){
     rooms[0].isvisible = 1;
@@ -881,10 +882,10 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
                     if(map[monsx][monsy] == '.'){
-                        rooms[i].mons[0].kind = DEAMON;
-                        rooms[i].mons[0].hp = 5;
-                        rooms[i].mons[0].pos.x = monsx;
-                        rooms[i].mons[0].pos.y = monsy;
+                        rooms[i].mons[rooms[i].monsnum].kind = DEAMON;
+                        rooms[i].mons[rooms[i].monsnum].hp = 5;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
                         rooms[i].monsnum++;
                         map[monsx][monsy] = 'D';
                     }}
@@ -1019,6 +1020,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         map[monsx][monsy] = 'G';
                     }}
                 }
+            
             }
             
             else if(rooms[i].theme == Treasure){
@@ -1042,6 +1044,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                     rooms[i].goldamount =50 + rand() % 15;
                 }
                 }
+                 
                  int ismons = rand()%4;
                 if(ismons){
                     if(ismons){
@@ -1095,7 +1098,7 @@ if((i == firstpillar) || (i == secondpillar) || (i == thirdpillar) || (i == 5) |
                 foodi.x = rooms[i].bottomleft.x + 2 + rand() % 3;
                 foodi.y = rooms[i].topleft.y + 2 + rand() % 3;
                 if(map[foodi.x][foodi.y] == '.'){
-                    map[foodi.x][foodi.y] = 'F';
+                    map[foodi.x][foodi.y] = 'f';
                 }            
                 }
                 if(isfood == 1){
@@ -1103,7 +1106,7 @@ if((i == firstpillar) || (i == secondpillar) || (i == thirdpillar) || (i == 5) |
                 foodi.x = rooms[i].bottomleft.x + 6 + rand() % 3;
                 foodi.y = rooms[i].topleft.y + 7 + rand() % 3;
                 if(map[foodi.x][foodi.y] == '.'){
-                    map[foodi.x][foodi.y] = 'F';
+                    map[foodi.x][foodi.y] = 'f';
                 }    
                 }
 
@@ -1300,9 +1303,9 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     attron(COLOR_PAIR(1));
     else if((map[x][y] == 'b'))
     attron(COLOR_PAIR(4));
-    else if((map[x][y] == 'F'))
+    else if((map[x][y] == 'f'))
     attron(COLOR_PAIR(5));
-    else if((map[x][y] <= '5') && ((map[x][y] >= '1')))
+    else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k'))
     attron(COLOR_PAIR(4));
     else if(map[x][y] == '6')
     attron(COLOR_PAIR(1));
@@ -1312,6 +1315,17 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     attron(COLOR_PAIR(3));
     else if(map[x][y] == '#')
     attron(COLOR_PAIR(6));
+    else if(map[x][y] == 'D')
+    attron(COLOR_PAIR(2));
+    else if(map[x][y] == 'F')
+    attron(COLOR_PAIR(5));
+    else if(map[x][y] == 'G')
+    attron(COLOR_PAIR(2));
+    else if(map[x][y] == 'S')
+    attron(COLOR_PAIR(3));
+    else if(map[x][y] == 'U')
+    attron(COLOR_PAIR(5));
+
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -1376,9 +1390,9 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(1));
     else if((map[x][y] == 'b'))
     attroff(COLOR_PAIR(4));
-    else if((map[x][y] == 'F'))
+    else if((map[x][y] == 'f'))
     attroff(COLOR_PAIR(5));
-    else if((map[x][y] <= '5') && ((map[x][y] >= '1')))
+    else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k') )
     attroff(COLOR_PAIR(4));
     else if(map[x][y] == '6')
     attroff(COLOR_PAIR(1));
@@ -1388,6 +1402,17 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(3));
     else if(map[x][y] == '#')
     attroff(COLOR_PAIR(6));
+    else if(map[x][y] == 'D')
+    attroff(COLOR_PAIR(2));
+    else if(map[x][y] == 'F')
+    attroff(COLOR_PAIR(5));
+    else if(map[x][y] == 'G')
+    attroff(COLOR_PAIR(2));
+    else if(map[x][y] == 'S')
+    attroff(COLOR_PAIR(3));
+    else if(map[x][y] == 'U')
+    attroff(COLOR_PAIR(5));
+
     else{
         for(int i= 0; i<6; i++){
              if((x<=rooms[i].bottomright.x) && (x>=rooms[i].bottomleft.x) && (y>=rooms[i].topleft.y)  &&(y<=rooms[i].bottomleft.y) ){
@@ -1440,21 +1465,23 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
         }
         }
         }
+       
         if(map[player.x][player.y] == '#'){
             realmap[player.x][player.y] = '#';    
         }
+        
         for(int i =0; i<maxx; i++){
             for(int j =0; j< maxy; j++){
                 starttheme(realmap, i, j, rooms, level);
                 if(realmap[i][j] == 'd')
                 mvprintw(j,i,"Δ");
                 else if(realmap[i][j] == 'b')
-                mvprintw(j, i, "Ω");
-                else if(realmap[i][j] == 'F')
+                mvprintw(j, i, "\u03A6");
+                else if(realmap[i][j] == 'f')
                 mvprintw(j, i, "Π");
                 else if(realmap[i][j] == '1')
                 mvprintw(j, i, "\u2692");
-                else if(realmap[i][j] == '2')
+                else if((realmap[i][j] == '2') || (realmap[i][j] == 'k'))
                 mvprintw(j, i, "τ");
                 else if(realmap[i][j] == '3')
                 mvprintw(j, i, "Ψ");
@@ -1482,13 +1509,13 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(a,z,"Δ");
                 else if(map[z][a] == 'b')
                 mvprintw(a, z, "\u03A6");
-                else if(map[z][a] == 'F')
+                else if(map[z][a] == 'f')
                 mvprintw(a, z, "Π");
                 else if(map[z][a] == '?')
                 mvprintw(a, z, "|");
                 else if(map[z][a] == '1')
                 mvprintw(a, z, "Ω");
-                else if(map[z][a] == '2')
+                else if((map[z][a] == '2') || (map[z][a] == 'k'))
                 mvprintw(a, z, "τ");
                 else if(map[z][a] == '3')
                 mvprintw(a, z, "Ψ");
@@ -1874,7 +1901,7 @@ void spelllist(data* game){
     }
 }
 
-void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom, int dontchoose){
+void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom, int dontchoose, int* hittype,int* monshp){
     int copyx = player->x;
     int copyy = player ->y;
     int roomsnum = roomsearch(rooms[*level], player->x, player->y);
@@ -1931,7 +1958,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 mvprintw(j,i, "Δ");
                 else if(map[*level][i][j] == 'b')
                 mvprintw(j, i, "\u03A6");
-                else if(map[*level][i][j] == 'F')
+                else if(map[*level][i][j] == 'f')
                 mvprintw(j, i, "Π");
                 else if(map[*level][i][j] == '1')
                 mvprintw(j, i, "Ω");
@@ -1978,7 +2005,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         {
             savex = player->x;
             savey = player->y;
-            handleinput(player, map, key,rooms,playerhp,level, invalid, password, passwordmode,passend,ancient,brokenancient, save,color, game, dontpick, win, newroom, 1);
+            handleinput(player, map, key,rooms,playerhp,level, invalid, password, passwordmode,passend,ancient,brokenancient, save,color, game, dontpick, win, newroom, 1, hittype, monshp);
             printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
             refresh();
         }}
@@ -2030,7 +2057,9 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
 
     else if(input == 32){
+
         if(game->wlist[0].isactive == 1){
+            int ishit =0;
             for(int i =player->x -1; i<player->x + 2; i++){
                 for(int j = player->y -1; j<player->y +2; j++){
                     for(int k = 0 ; k<3; k++){
@@ -2042,10 +2071,165 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                         rooms[*level][roomsnum].mons[k].pos.x = -1;
                         rooms[*level][roomsnum].mons[k].pos.y = -1;
                         }
+                        ishit =1;
+                        *monshp = rooms[*level][roomsnum].mons[k].hp;
+                        *hittype = 2;
                     }
                     }
                 }
             }
+            if(ishit ==0){
+                        *hittype = 0;
+            }
+        }
+
+        else if((game->wlist[1].isactive ==1) ){
+            int ishit =0;
+            if((game->wlist[1].count>=1)){
+
+            while(1){
+        printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
+        refresh();
+    int key = getch();
+
+      if(key == 'w'){
+      for(int i =player->y; (i>rooms[*level][roomsnum].topleft.y) && (i> player->y -5); i--){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 12;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][player->x][i] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topleft.y>= player->y -5){
+            map[*level][player->x][rooms[*level][roomsnum].topleft.y + 1] = 'k';
+        }
+        else{
+ map[*level][player->x][player->y - 5] = 'k';
+        }
+      }
+      game->wlist[1].count--;
+      break;
+
+      }
+    
+    else if(key == 'a'){
+         for(int i =player->x; (i>rooms[*level][roomsnum].topleft.x) && (i> player->x -5); i--){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
+            rooms[*level][roomsnum].mons[k].hp -= 12;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][i][player->y] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topleft.x>= player->x -5){
+            map[*level][rooms[*level][roomsnum].topleft.x +1][player->y] = 'k';
+        }
+        else{
+  map[*level][player->x - 5][player->y] = 'k';
+        }
+      }
+      game->wlist[1].count--;
+      break;
+    }
+    
+    else if(key == 's'){
+      for(int i =player->y; (i<rooms[*level][roomsnum].bottomleft.y) && (i< player->y +5); i++){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 12;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][player->x][i] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].bottomleft.y<= player->y +5){
+            map[*level][player->x][rooms[*level][roomsnum].bottomleft.y - 1] = 'k';
+        }
+        else{
+ map[*level][player->x][player->y + 5] = 'k';
+        }
+      }
+      game->wlist[1].count--;
+      break;
+    }
+    
+    else if(key == 'd'){
+               for(int i =player->x; (i<rooms[*level][roomsnum].topright.x) && (i< player->x +5); i++){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
+            rooms[*level][roomsnum].mons[k].hp -= 12;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][i][player->y] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topright.x <= player->x +5){
+            map[*level][rooms[*level][roomsnum].topright.x -1][player->y] = 'k';
+        }
+        else{
+  map[*level][player->x + 5][player->y] = 'k';
+        }
+      }
+      game->wlist[1].count--;
+      break;
+    }
+  
+    else if(key != ERR){
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp);
+        break;
+    }
+    
+    }
+    
+    } 
+      else{
+        *hittype =0;
+        *invalid =1;
+      }
+            
         }
     }
 
@@ -2091,7 +2275,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
        *invalid = 1;
     }
     
-    if((map[*level][player->x][player->y ] == '.') || (map[*level][player->x][player->y ] == '+') || (map[*level][player->x][player->y ] == '#') ||(map[*level][player->x][player->y ] == '=') ||(map[*level][player->x][player->y ] == '^')||(map[*level][player->x][player->y ] == '?') || (map[*level][player->x][player->y ] == '<') || (map[*level][player->x][player->y ] == '&') ||(map[*level][player->x][player->y ] == '@') || (map[*level][player->x][player->y ] == 'd')|| (map[*level][player->x][player->y ] == '$')|| (map[*level][player->x][player->y ] == 'E')|| (map[*level][player->x][player->y ] == 'b')||(map[*level][player->x][player->y ] == 'F') ||((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '8'))){
+    if((map[*level][player->x][player->y ] == '.') || (map[*level][player->x][player->y ] == '+') || (map[*level][player->x][player->y ] == '#') ||(map[*level][player->x][player->y ] == '=') ||(map[*level][player->x][player->y ] == '^')||(map[*level][player->x][player->y ] == '?') || (map[*level][player->x][player->y ] == '<') || (map[*level][player->x][player->y ] == '&') ||(map[*level][player->x][player->y ] == '@') || (map[*level][player->x][player->y ] == 'd')|| (map[*level][player->x][player->y ] == '$')|| (map[*level][player->x][player->y ] == 'E')|| (map[*level][player->x][player->y ] == 'b')||(map[*level][player->x][player->y ] == 'f') ||((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '8')) ||(map[*level][player->x][player->y ] == 'k')){
         }
     
         else{
@@ -2375,7 +2559,7 @@ if(map[*level][player->x][player->y] == '#'){
             game->realmap[*level][player->x][player->y] = '#';    
         }
 
-if(map[*level][player->x][player->y] == 'F'){
+if(map[*level][player->x][player->y] == 'f'){
     if(!(*dontpick)){
     if(game->foodamount<5){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
@@ -2388,7 +2572,7 @@ if(map[*level][player->x][player->y] == 'F'){
     *dontpick =0;
 }
  
- if((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')){
+ if(((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')) || (map[*level][player->x][player->y ] == 'k')){
     if(!(*dontpick)&& (!dontchoose)){
     while(1){
         printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
@@ -2420,10 +2604,15 @@ if(map[*level][player->x][player->y] == 'F'){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
         game->wlist[4].count = 1;
     }
+    else if(map[*level][player->x][player->y ] == 'k'){
+         map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
+         game->wlist[1].count = game->wlist[1].count + 1;
+    }
     break;
     }
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp);
         break;
     }
     }}
@@ -2456,7 +2645,7 @@ if((map[*level][player->x][player->y ] >= '6')&& (map[*level][player->x][player-
     break;
     }
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp);
         break;
     }
     }}
@@ -2655,6 +2844,7 @@ ishungry =0;
 int input =0;
 int hittype =0;
 int fire =0; 
+int monshp =0;
 if(passwordmode == 1){
     temptime = time(NULL);
     passwordmode =0;
@@ -2690,7 +2880,7 @@ changepass = 0;
 isold =0;
 }
 printmap(game.map[game.level], game.player, game.color, game.rooms[game.level], game.realmap[ game.level], game.level);
-printmessage(hittype, fire, invalid, newlevel);
+printmessage(hittype, fire, invalid, newlevel,monshp);
 health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
         if(newroom){
@@ -2717,7 +2907,7 @@ if(input == 27){
 }
  else{
     goldsave = game.gold;
-     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save,game.color, &game, &dontpick, &win, &newroom,0);
+     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save,game.color, &game, &dontpick, &win, &newroom,0, &hittype, &monshp);
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
@@ -2854,6 +3044,7 @@ int ishungry =0;
 time_t htime = time(NULL);
 int hremaining =0;
 int enchantremaining =0;
+int monshp =0;
 initializeweapon(&game);
 initializespell(&game);
 
@@ -2988,7 +3179,7 @@ isold =0;
 }
 
 printmap(game.map[game.level], game.player, color, game.rooms[game.level], game.realmap[ game.level], game.level);
-printmessage(hittype, fire, invalid, newlevel);
+printmessage(hittype, fire, invalid, newlevel, monshp);
 health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
         if(newroom){
@@ -3016,7 +3207,7 @@ if(input == 27){
 }
  else{
     goldsave = game.gold;
-     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save, game.color, &game, &dontpick, &win, &newroom, 0);
+     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save, game.color, &game, &dontpick, &win, &newroom, 0, &hittype, &monshp);
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
