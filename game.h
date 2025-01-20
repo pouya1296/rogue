@@ -1278,7 +1278,7 @@ void makecorridor(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms)
             
         }
 
-void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level){
+void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level, int night){
     if(map[x][y] == '&')
     attron(COLOR_PAIR(4));
     else if((map[x][y] == '@') &&(rooms[4].islocked ==1) &&(level == 0))
@@ -1305,7 +1305,7 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     attron(COLOR_PAIR(4));
     else if((map[x][y] == 'f'))
     attron(COLOR_PAIR(5));
-    else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k'))
+    else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k') || (map[x][y] == 'a') ||(map[x][y] == 'm'))
     attron(COLOR_PAIR(4));
     else if(map[x][y] == '6')
     attron(COLOR_PAIR(1));
@@ -1345,7 +1345,7 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
 
         }
 
-        else if(((map[x][y] == '^')) || ((map[x][y] == 'O')) || ((map[x][y] == '+')) || ((map[x][y] == '?')) ){
+        else if(((map[x][y] == '^')) || ((map[x][y] == 'O')) || ((map[x][y] == '+')) || ((map[x][y] == '?') && (night !=0)) ){
             if(rooms[i].theme == Regular){
             attron(COLOR_PAIR(1));
         }
@@ -1365,7 +1365,7 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
 }
     }
 
-void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level){
+void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level, int night){
     if(map[x][y] == '&')
     attroff(COLOR_PAIR(4));
     else if((map[x][y] == '@') &&(rooms[4].islocked ==1) &&(level == 0))
@@ -1392,7 +1392,7 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(4));
     else if((map[x][y] == 'f'))
     attroff(COLOR_PAIR(5));
-    else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k') )
+    else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k')|| (map[x][y] == 'a') ||(map[x][y] == 'm') )
     attroff(COLOR_PAIR(4));
     else if(map[x][y] == '6')
     attroff(COLOR_PAIR(1));
@@ -1431,7 +1431,7 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
         }
         }
 
-        else if(((map[x][y] == '^')) || ((map[x][y] == 'O')) || ((map[x][y] == '+')) || ((map[x][y] == '?')) ){
+        else if(((map[x][y] == '^')) || ((map[x][y] == 'O')) || ((map[x][y] == '+')) || ((map[x][y] == '?')&& (night !=0)) ){
             if(rooms[i].theme == Regular){
             attroff(COLOR_PAIR(1));
         }
@@ -1472,7 +1472,7 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
         
         for(int i =0; i<maxx; i++){
             for(int j =0; j< maxy; j++){
-                starttheme(realmap, i, j, rooms, level);
+                starttheme(realmap, i, j, rooms, level,1);
                 if(realmap[i][j] == 'd')
                 mvprintw(j,i,"Δ");
                 else if(realmap[i][j] == 'b')
@@ -1483,9 +1483,9 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(j, i, "\u2692");
                 else if((realmap[i][j] == '2') || (realmap[i][j] == 'k'))
                 mvprintw(j, i, "τ");
-                else if(realmap[i][j] == '3')
+                else if((realmap[i][j] == '3')||(realmap[i][j] == 'm'))
                 mvprintw(j, i, "Ψ");
-                else if(realmap[i][j] == '4')
+                else if((realmap[i][j] == '4')||(realmap[i][j] == 'a'))
                 mvprintw(j, i, "➵");
                 else if(realmap[i][j] == '5')
                 mvprintw(j, i, "Χ");
@@ -1497,14 +1497,15 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(j, i, "☠");
                 else
                 mvprintw(j,i,"%c", realmap[i][j]);
-                endtheme(realmap, i, j, rooms, level);
+                endtheme(realmap, i, j, rooms, level, 1);
             }
         }
+
                    for(int k= 0; k<6; k++){
              if((player.x<=rooms[k].bottomright.x) && (player.x>=rooms[k].bottomleft.x) && (player.y>=rooms[k].topleft.y)  &&(player.y<=rooms[k].bottomleft.y) &&(rooms[k].theme == Nightmare)){
                     for(int z = player.x-2; z<player.x + 3; z++){
                         for(int a = player.y-2; a<player.y + 3; a++){
-                            starttheme(map, z, a, rooms, level);
+                            starttheme(map, z, a, rooms, level, 0);
                 if(map[z][a] == 'd')
                 mvprintw(a,z,"Δ");
                 else if(map[z][a] == 'b')
@@ -1517,9 +1518,9 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(a, z, "Ω");
                 else if((map[z][a] == '2') || (map[z][a] == 'k'))
                 mvprintw(a, z, "τ");
-                else if(map[z][a] == '3')
+                else if((map[z][a] == '3')||(map[z][a] == 'm'))
                 mvprintw(a, z, "Ψ");
-                else if(map[z][a] == '4')
+                else if((map[z][a] == '4')||(map[z][a] == 'a'))
                 mvprintw(a, z, "➵");
                 else if(map[z][a] == '5')
                 mvprintw(a, z, "Χ");
@@ -1533,7 +1534,7 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 if(map[z][a] != '#'){
                 mvprintw(a,z,"%c", map[z][a]);}}
 
-                endtheme(map, z, a, rooms, level);
+                endtheme(map, z, a, rooms, level, 0);
                         }
                        }}}
 
@@ -1953,7 +1954,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         clear();
         for(int i =0; i<maxx; i++){
             for(int j =0; j< maxy; j++){
-                starttheme(map[*level], i, j, rooms[*level], *level);
+                starttheme(map[*level], i, j, rooms[*level], *level, 1);
                 if(map[*level][i][j] == 'd')
                 mvprintw(j,i, "Δ");
                 else if(map[*level][i][j] == 'b')
@@ -1978,7 +1979,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 mvprintw(j, i, "☠");
                 else
                 mvprintw(j,i,"%c", map[*level][i][j]);
-                endtheme(map[*level], i, j, rooms[*level], *level);
+                endtheme(map[*level], i, j, rooms[*level], *level, 1);
             }
         }
         attron(COLOR_PAIR(color));
@@ -2225,12 +2226,355 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
     
     } 
-      else{
+    else{
         *hittype =0;
         *invalid =1;
       }
-            
+    
+    if(game->wlist[1].count ==0){
+        game->wlist[1].isactive =0;
+        game->wlist[0].isactive =1;
+
+    }
+       
         }
+       
+        else if((game->wlist[2].isactive ==1) ){
+            int ishit =0;
+            if((game->wlist[2].count>=1)){
+
+            while(1){
+        printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
+        refresh();
+    int key = getch();
+
+      if(key == 'w'){
+      for(int i =player->y; (i>rooms[*level][roomsnum].topleft.y) && (i> player->y -10); i--){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 15;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][player->x][i] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topleft.y>= player->y -10){
+            map[*level][player->x][rooms[*level][roomsnum].topleft.y + 1] = 'm';
+        }
+        else{
+ map[*level][player->x][player->y - 10] = 'm';
+        }
+      }
+      game->wlist[2].count--;
+      break;
+
+      }
+    
+    else if(key == 'a'){
+         for(int i =player->x; (i>rooms[*level][roomsnum].topleft.x) && (i> player->x -10); i--){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
+            rooms[*level][roomsnum].mons[k].hp -= 15;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][i][player->y] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topleft.x>= player->x -10){
+            map[*level][rooms[*level][roomsnum].topleft.x +1][player->y] = 'm';
+        }
+        else{
+  map[*level][player->x - 10][player->y] = 'm';
+        }
+      }
+      game->wlist[2].count--;
+      break;
+    }
+    
+    else if(key == 's'){
+      for(int i =player->y; (i<rooms[*level][roomsnum].bottomleft.y) && (i< player->y +10); i++){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 15;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][player->x][i] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].bottomleft.y<= player->y +10){
+            map[*level][player->x][rooms[*level][roomsnum].bottomleft.y - 1] = 'm';
+        }
+        else{
+ map[*level][player->x][player->y + 10] = 'm';
+        }
+      }
+      game->wlist[2].count--;
+      break;
+    }
+    
+    else if(key == 'd'){
+               for(int i =player->x; (i<rooms[*level][roomsnum].topright.x) && (i< player->x +10); i++){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
+            rooms[*level][roomsnum].mons[k].hp -= 15;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][i][player->y] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topright.x <= player->x +10){
+            map[*level][rooms[*level][roomsnum].topright.x -1][player->y] = 'm';
+        }
+        else{
+  map[*level][player->x + 10][player->y] = 'm';
+        }
+      }
+      game->wlist[2].count--;
+      break;
+    }
+  
+    else if(key != ERR){
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp);
+        break;
+    }
+    
+    }
+    
+    } 
+    else{
+        *hittype =0;
+        *invalid =1;
+      }
+
+    if(game->wlist[2].count ==0){
+        game->wlist[2].isactive =0;
+        game->wlist[0].isactive =1;
+
+    }      
+
+        }
+        
+        else if((game->wlist[3].isactive ==1) ){
+            int ishit =0;
+            if((game->wlist[3].count>=1)){
+
+            while(1){
+        printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
+        refresh();
+    int key = getch();
+
+      if(key == 'w'){
+      for(int i =player->y; (i>rooms[*level][roomsnum].topleft.y) && (i> player->y -5); i--){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 5;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][player->x][i] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topleft.y>= player->y -5){
+            map[*level][player->x][rooms[*level][roomsnum].topleft.y + 1] = 'a';
+        }
+        else{
+ map[*level][player->x][player->y - 5] = 'a';
+        }
+      }
+      game->wlist[3].count--;
+      break;
+
+      }
+    
+    else if(key == 'a'){
+         for(int i =player->x; (i>rooms[*level][roomsnum].topleft.x) && (i> player->x -5); i--){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
+            rooms[*level][roomsnum].mons[k].hp -= 5;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][i][player->y] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topleft.x>= player->x -5){
+            map[*level][rooms[*level][roomsnum].topleft.x +1][player->y] = 'a';
+        }
+        else{
+  map[*level][player->x - 5][player->y] = 'a';
+        }
+      }
+      game->wlist[3].count--;
+      break;
+    }
+    
+    else if(key == 's'){
+      for(int i =player->y; (i<rooms[*level][roomsnum].bottomleft.y) && (i< player->y +5); i++){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 5;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][player->x][i] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].bottomleft.y<= player->y +5){
+            map[*level][player->x][rooms[*level][roomsnum].bottomleft.y - 1] = 'a';
+        }
+        else{
+ map[*level][player->x][player->y + 5] = 'a';
+        }
+      }
+      game->wlist[3].count--;
+      break;
+    }
+    
+    else if(key == 'd'){
+               for(int i =player->x; (i<rooms[*level][roomsnum].topright.x) && (i< player->x +5); i++){
+        for(int k=0; k<4; k++){
+        if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
+            rooms[*level][roomsnum].mons[k].hp -= 5;
+            ishit =1;
+            *hittype =2;
+            *invalid =0;
+            if(rooms[*level][roomsnum].mons[k].hp <= 0){
+            map[*level][i][player->y] = '.';
+            rooms[*level][roomsnum].mons[k].pos.x =-1;
+            rooms[*level][roomsnum].mons[k].pos.y = -1;
+            }
+            break;
+        }
+        }
+      }
+      if(ishit ==0){
+    *hittype = 0;
+    *invalid =0;
+        if(rooms[*level][roomsnum].topright.x <= player->x +5){
+            map[*level][rooms[*level][roomsnum].topright.x -1][player->y] = 'a';
+        }
+        else{
+  map[*level][player->x + 5][player->y] = 'a';
+        }
+      }
+      game->wlist[3].count--;
+      break;
+    }
+  
+    else if(key != ERR){
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp);
+        break;
+    }
+    
+    }
+    
+    } 
+    else{
+        *hittype =0;
+        *invalid =1;
+      }
+    
+    if(game->wlist[3].count ==0){
+        game->wlist[3].isactive =0;
+        game->wlist[0].isactive =1;
+
+    }
+       
+        }
+     
+        else if(game->wlist[4].isactive == 1){
+            int ishit =0;
+            for(int i =player->x -1; i<player->x + 2; i++){
+                for(int j = player->y -1; j<player->y +2; j++){
+                    for(int k = 0 ; k<3; k++){
+                    if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == j)){
+                        rooms[*level][roomsnum].mons[k].hp -= 10;
+                        if(rooms[*level][roomsnum].mons[k].hp<=0){
+                        rooms[*level][roomsnum].mons[k].hp =0;
+                        map[*level][i][j] = '.';
+                        rooms[*level][roomsnum].mons[k].pos.x = -1;
+                        rooms[*level][roomsnum].mons[k].pos.y = -1;
+                        }
+                        ishit =1;
+                        *monshp = rooms[*level][roomsnum].mons[k].hp;
+                        *hittype = 2;
+                    }
+                    }
+                }
+            }
+            if(ishit ==0){
+                        *hittype = 0;
+            }
+        }
+    
+
     }
 
     else if((input == 'h') && (map[*level][player->x][player->y] == '<')){
@@ -2275,14 +2619,13 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
        *invalid = 1;
     }
     
-    if((map[*level][player->x][player->y ] == '.') || (map[*level][player->x][player->y ] == '+') || (map[*level][player->x][player->y ] == '#') ||(map[*level][player->x][player->y ] == '=') ||(map[*level][player->x][player->y ] == '^')||(map[*level][player->x][player->y ] == '?') || (map[*level][player->x][player->y ] == '<') || (map[*level][player->x][player->y ] == '&') ||(map[*level][player->x][player->y ] == '@') || (map[*level][player->x][player->y ] == 'd')|| (map[*level][player->x][player->y ] == '$')|| (map[*level][player->x][player->y ] == 'E')|| (map[*level][player->x][player->y ] == 'b')||(map[*level][player->x][player->y ] == 'f') ||((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '8')) ||(map[*level][player->x][player->y ] == 'k')){
+    if((map[*level][player->x][player->y ] == '.') || (map[*level][player->x][player->y ] == '+') || (map[*level][player->x][player->y ] == '#') ||(map[*level][player->x][player->y ] == '=') ||(map[*level][player->x][player->y ] == '^')||(map[*level][player->x][player->y ] == '?') || (map[*level][player->x][player->y ] == '<') || (map[*level][player->x][player->y ] == '&') ||(map[*level][player->x][player->y ] == '@') || (map[*level][player->x][player->y ] == 'd')|| (map[*level][player->x][player->y ] == '$')|| (map[*level][player->x][player->y ] == 'E')|| (map[*level][player->x][player->y ] == 'b')||(map[*level][player->x][player->y ] == 'f') ||((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '8')) ||(map[*level][player->x][player->y ] == 'k')||(map[*level][player->x][player->y ] == 'a')||(map[*level][player->x][player->y ] == 'm')){
         }
     
         else{
             player->x = copyx;
             player->y = copyy;
         }
-
 
 
     if(map[*level][player ->x][player ->y] == '+'){
@@ -2572,7 +2915,7 @@ if(map[*level][player->x][player->y] == 'f'){
     *dontpick =0;
 }
  
- if(((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')) || (map[*level][player->x][player->y ] == 'k')){
+ if(((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')) || (map[*level][player->x][player->y ] == 'k')|| (map[*level][player->x][player->y ] == 'm')|| (map[*level][player->x][player->y ] == 'a')){
     if(!(*dontpick)&& (!dontchoose)){
     while(1){
         printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
@@ -2608,6 +2951,16 @@ if(map[*level][player->x][player->y] == 'f'){
          map[*level][player->x][player->y ] = '.';
          if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
          game->wlist[1].count = game->wlist[1].count + 1;
+    }
+    else if(map[*level][player->x][player->y ] == 'm'){
+         map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
+         game->wlist[2].count = game->wlist[2].count + 1;
+    }
+    else if(map[*level][player->x][player->y ] == 'a'){
+         map[*level][player->x][player->y ] = '.';
+         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
+         game->wlist[3].count = game->wlist[3].count + 1;
     }
     break;
     }
