@@ -158,6 +158,118 @@ void printttt(char username[]) {
  
 }
 
+void printweapon() {
+    char text[][200] = {
+
+" __          ________          _____   ____  _   _ ",
+" \\ \\        / /  ____|   /\\   |  __ \\ / __ \\| \\ | |",
+"  \\ \\  /\\  / /| |__     /  \\  | |__) | |  | |  \\| |",
+"   \\ \\/  \\/ / |  __|   / /\\ \\ |  ___/| |  | | . ` |",
+"    \\  /\\  /  | |____ / ____ \\| |    | |__| | |\\  |",
+"     \\/  \\/   |______/_/    \\_\\_|     \\____/|_| \\_|"
+    };
+
+
+    int starty = 1;
+    int startx = maxx/2 - strlen(text[0])/2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+ 
+}
+
+void printfood() {
+    char text[][200] = {
+"  ______ ____   ____  _____",
+" |  ____/ __ \\ / __ \\|  __ \\ ",
+" | |__ | |  | | |  | | |  | |",
+" |  __|| |  | | |  | | |  | |",
+" | |   | |__| | |__| | |__| |",
+" |_|    \\____/ \\____/|_____/ "
+
+    };
+
+
+    int starty = 1;
+    int startx = maxx/2 - strlen(text[0])/2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+ 
+}
+
+void printspell() {
+    char text[][200] = {
+
+"   _____ _____  ______ _      _   "  , 
+"  / ____|  __ \\|  ____| |    | |   "  ,
+" | (___ | |__) | |__  | |    | |   "  ,
+"  \\___ \\|  ___/|  __| | |    | |     ",
+"  ____) | |    | |____| |____| |____ ",
+" |_____/|_|    |______|______|______|"
+
+    };
+
+
+    int starty = 1;
+    int startx = maxx/2 - strlen(text[0])/2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+ 
+}
+
+void printwrong() {
+    char text[][200] = {
+" __          _______   ____  _   _  _____   _ ",
+" \\ \\        / /  __ \\ / __ \\| \\ | |/ ____| | |",
+"  \\ \\  /\\  / /| |__) | |  | |  \\| | |  __  | |",
+"   \\ \\/  \\/ / |  _  /| |  | | . ` | | |_ | | |",
+"    \\  /\\  /  | | \\ \\| |__| | |\\  | |__| | |_|",
+"     \\/  \\/   |_|  \\_\\\\____/|_| \\_|\\_____| (_)"
+                                              
+    };
+
+
+    int starty = 1;
+    int startx = maxx/2 - strlen(text[0])/2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+ 
+}
+
+void printenter() {
+    char text[][200] = {
+
+"  ______ _   _ _______ ______ _____      ",
+" |  ____| \\ | |__   __|  ____|  __ \\   _ ",
+" | |__  |  \\| |  | |  | |__  | |__) | (_)",
+" |  __| | . ` |  | |  |  __| |  _  /     ",
+" | |____| |\\  |  | |  | |____| | \\ \\   _ ",
+" |______|_| \\_|  |_|  |______|_|  \\_\\ (_)"
+                                              
+    };
+
+
+    int starty = 1;
+    int startx = maxx/2 - strlen(text[0])/2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+ 
+}
+
 void printyoulost() {
     char you_lost[][200] = {        
         "____    ____   ______    __    __      __        ______        _______  ___________ ",
@@ -168,7 +280,6 @@ void printyoulost() {
         "    |__|      \\______/   \\______/     |_______| \\______/  |_______/        |__|     "
     };
     
-
 
     int starty = (LINES - 6) / 2 + 1;
     int startx = (COLS - strlen(you_lost[0])) / 2;
@@ -1557,13 +1668,13 @@ int passwordcheck(char password[]){
         clear();
          if(i ==1 ){
         attron(COLOR_PAIR(4));
-        mvprintw(21, COLS/2 -8 , "wrong password!");
+        printwrong();
         attroff(COLOR_PAIR(4));
         refresh();
     }
     else if(i ==2 ){
         attron(COLOR_PAIR(5));
-        mvprintw(21, COLS/2 -8 , "wrong password!");
+        printwrong();
         attroff(COLOR_PAIR(5));
         refresh();
     }
@@ -1613,9 +1724,9 @@ void foodmenu(data* game){
     wrefresh(window);
     health(game);
     hunger(game);
-    wattron(window,COLOR_PAIR(4) | A_BOLD);
-    mvwprintw(window, 1, boxwidth/2 -5, "FOOD MENU");
-    wattroff(window, COLOR_PAIR(4) | A_BOLD);
+    attron(COLOR_PAIR(4) | A_BOLD);
+    printfood();
+    attroff( COLOR_PAIR(4) | A_BOLD);
         for(int i =0; i<game->foodamount +1; i++){
             if(i == choice){
                 wattron(window, A_REVERSE);
@@ -1714,9 +1825,9 @@ void weaponlist(data* game){
     keypad(stdscr, true);
     refresh();
     wrefresh(window);
-    wattron(window,COLOR_PAIR(2) | A_BOLD);
-    mvwprintw(window, 1, boxwidth/2 -6, "WEAPON LIST");
-    wattroff(window, COLOR_PAIR(2) | A_BOLD);
+    attron(COLOR_PAIR(2) | A_BOLD);
+    printweapon();
+    attroff( COLOR_PAIR(2) | A_BOLD);
         for(int i =0; i<6; i++){
             if(i == choice){
                 wattron(window, A_REVERSE);
@@ -1726,7 +1837,17 @@ void weaponlist(data* game){
             else{
                 if(game->wlist[i].isactive)
                 wattron(window, A_BOLD);
-            mvwprintw(window, 1 + i, 3,"%s COUNT: %d", game->wlist[i].name, game->wlist[i].count);
+                if(i ==0)
+            mvwprintw(window, 1 + i, 3,"Ω Mace         COUNT:   DAMAGE: 5  SHORT-RANGE   ");
+            else if(i == 1)
+            mvwprintw(window, 1 + i, 3,"τ Dagger       COUNT:   DAMAGE: 12 LONG-RANGE: 5 ");
+            else if(i == 2)
+            mvwprintw(window, 1 + i, 3,"Ψ Magic Wand   COUNT:   DAMAGE: 15 LONG-RANGE: 10");
+            else if(i == 3)
+            mvwprintw(window, 1 + i, 3,"➵ Normal Arrow COUNT:   DAMAGE: 5  LONG-RANGE: 5 ");
+            else if(i == 4)
+            mvwprintw(window, 1 + i, 3,"Χ sword        COUNT:   DAMAGE: 10 SHORT-RANGE   ");
+             mvwprintw(window, 1+i, 25, "%d", game->wlist[i].count);
             if(game->wlist[i].isactive)
                 wattroff(window, A_BOLD);
                 }
@@ -1829,9 +1950,9 @@ void spelllist(data* game){
     keypad(stdscr, true);
     refresh();
     wrefresh(window);
-    wattron(window,COLOR_PAIR(1) | A_BOLD);
-    mvwprintw(window, 1, boxwidth/2 -5, "SPELL LIST");
-    wattroff(window, COLOR_PAIR(1) | A_BOLD);
+    attron(COLOR_PAIR(1) | A_BOLD);
+    printspell();
+    attroff( COLOR_PAIR(1) | A_BOLD);
         for(int i =0; i<4; i++){
             if(i == choice){
                 wattron(window, A_REVERSE);
@@ -2055,6 +2176,67 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
 
     else if(input == 'y'){
         spelllist(game);
+    }
+
+    else if(input == 'i'){
+        if(game->wlist[0].isactive != 1){
+        game->wlist[0].isactive = 1;
+        for(int i =1; i<5; i++){
+            game->wlist[i].isactive =0;
+        }
+        }
+        else
+        game->wlist[0].isactive = 0;
+    }
+   
+    else if((input == 'o') && (game->wlist[1].isactive != 1) && (game->wlist[1].count >0)){
+         
+        game->wlist[1].isactive = 1;
+        for(int i =0; i<5; i++){
+            if(i !=1)
+            game->wlist[i].isactive =0;
+        }
+    }
+
+    else if((input == 'o') && (game->wlist[1].isactive == 1)){
+        game->wlist[1].isactive = 0;
+    }
+
+    else if((input == 'p') && (game->wlist[2].isactive != 1) && (game->wlist[2].count >0)){
+         
+        game->wlist[2].isactive = 1;
+        for(int i =0; i<5; i++){
+            if(i !=2)
+            game->wlist[i].isactive =0;
+        }
+    }
+
+    else if((input == 'p') && (game->wlist[2].isactive == 1)){
+        game->wlist[2].isactive = 0;
+    }
+
+    else if((input == 'k') && (game->wlist[3].isactive != 1) && (game->wlist[3].count >0)){
+         
+        game->wlist[3].isactive = 1;
+        for(int i =0; i<5; i++){
+            if(i !=3)
+            game->wlist[i].isactive =0;
+        }
+    }
+
+    else if((input == 'k') && (game->wlist[3].isactive == 1)){
+        game->wlist[3].isactive = 0;
+    }
+
+    else if(input == 'l'){
+        if(game->wlist[4].isactive != 1){
+        game->wlist[4].isactive = 1;
+        for(int i =0; i<4; i++){
+            game->wlist[i].isactive =0;
+        }
+        }
+        else
+        game->wlist[4].isactive = 0;
     }
 
     else if(input == 32){
@@ -3100,13 +3282,22 @@ int hremaining =0;
 int ishungry =0;
 time_t enchanttime =0;
 int enchantremaining =0;
+int recover =0;
 
 halfdelay(10);
 while(1){
     if(game.playerhp <= 0){
         game.endgame =1;
+        if(updateUser(username, &game)){
+
+    }
+    else
+    adduser(&game);
+    savegame(username, &game);
+    break;
         break;
     }
+    
     if(game.level>game.savelevel){
     game.savelevel =game.level;
     newlevel =1;
@@ -3124,6 +3315,7 @@ while(1){
     isregular =1;
     }
     }
+    
     else{
         isregular =0;
 if(game.rooms[game.level][roomnumber].theme != Nightmare){
@@ -3170,7 +3362,9 @@ else{
    istreasure = 0; 
 }}
 
+
 if(ishungry){
+    recover =0;
     hremaining = (int)difftime(time(NULL), htime);
     if(hremaining >= 1){
     game.playerhp = game.playerhp -1;
@@ -3181,13 +3375,17 @@ if(ishungry){
 
 else{
     hremaining = (int)difftime(time(NULL), htime);
+    if((recover>=25)&&(game.playerhp<100)&&(!isenchant)&&(hremaining>=1))
+    game.playerhp++;
+
     if(hremaining>=1){
     if(game.hunger<100)
     game.hunger += 1;
+    recover++;
         htime = time(NULL); }
 }
 
-if(game.hunger>60){
+if(game.hunger>50){
     ishungry =1;
 }
 else
@@ -3202,8 +3400,8 @@ if(passwordmode == 1){
     temptime = time(NULL);
     passwordmode =0;
     passend =0;
-    changepass = rand() % 10;
-    isold = rand() %6;
+    changepass = rand() % 4;
+    isold = rand() %3;
 }
 if(remaining <=0){
     passend =1;
@@ -3400,6 +3598,7 @@ int enchantremaining =0;
 int monshp =0;
 initializeweapon(&game);
 initializespell(&game);
+int recover =0;
 
 halfdelay(10);
 while(1){
@@ -3407,6 +3606,7 @@ while(1){
         game.endgame =1;
         break;
     }
+   
     if(game.level>game.savelevel){
     game.savelevel =game.level;
     newlevel =1;
@@ -3429,6 +3629,7 @@ while(1){
 if(game.rooms[game.level][roomnumber].theme != Nightmare){
     game.rooms[game.level][roomnumber].isvisible = 1;
 }
+
 if((game.rooms[game.level][roomnumber].theme  == Enchant)){
     if(isenchant ==0){
         enchanttime = time(NULL);
@@ -3438,15 +3639,18 @@ if((game.rooms[game.level][roomnumber].theme  == Enchant)){
         startmusic(6);}
     }
 }
+
 else{
    isenchant = 0; 
 }
+
 if(isenchant){
     enchantremaining = (int)difftime(time(NULL), enchanttime);
     if(enchantremaining >= 1){
     enchanttime = time(NULL);
     game.playerhp--;}
 }
+
 if((game.rooms[game.level][roomnumber].theme  == Nightmare)){
     if(isnight ==0){
         isnight = 1;
@@ -3455,9 +3659,11 @@ if((game.rooms[game.level][roomnumber].theme  == Nightmare)){
         startmusic(8);}
     }
 }
+
 else{
    isnight = 0; 
 }
+
 if((game.rooms[game.level][roomnumber].theme  == Treasure)){
     if(istreasure ==0){
         istreasure = 1;
@@ -3466,11 +3672,13 @@ if((game.rooms[game.level][roomnumber].theme  == Treasure)){
         startmusic(7);}
     }
 }
+
 else{
    istreasure = 0; 
 }}
 
 if(ishungry){
+    recover =0;
     hremaining = (int)difftime(time(NULL), htime);
     if(hremaining >= 1){
     game.playerhp = game.playerhp -1;
@@ -3481,15 +3689,20 @@ if(ishungry){
 
 else{
     hremaining = (int)difftime(time(NULL), htime);
+    if((recover>=25)&&(game.playerhp<100)&& (!isenchant)&&(hremaining>=1))
+    game.playerhp++;
+
     if(hremaining>=1){
     if(game.hunger<100)
     game.hunger += 1;
+    recover++;
         htime = time(NULL); }
 }
 
-if(game.hunger>60){
+if(game.hunger>50){
     ishungry =1;
 }
+
 else
 ishungry =0;
 
@@ -3500,8 +3713,8 @@ if(passwordmode == 1){
     temptime = time(NULL);
     passwordmode =0;
     passend =0;
-    changepass = rand() % 10;
-    isold = rand() %6;
+    changepass = rand() % 4;
+    isold = rand() %3;
 }
 if(remaining <=0){
     passend =1;
