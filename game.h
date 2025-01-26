@@ -22,6 +22,10 @@
 #define GIANT 2
 #define SNAKE 3
 #define UNDEED 4
+#define NORMAL 0
+#define GREAT 1
+#define MAGIC 2
+#define POISENOUS 3
 
 
 typedef struct{
@@ -67,7 +71,9 @@ typedef struct{
 
 typedef struct{
 char name[100];
-int hpamount; 
+int hpamount;
+int fkind; 
+time_t ftime;
 } food;
 
 typedef struct{
@@ -607,10 +613,10 @@ void printmessage(int hittype, int fire, int invalidcommand, int newlevel, int m
         attroff(COLOR_PAIR(1) | A_BOLD);
     }
     else if(hittype == 2){
-        attron(COLOR_PAIR(2) | A_BOLD);
+        attron(COLOR_PAIR(1) | A_BOLD);
         mvprintw(0,middle_x - 10, "You hit the monster! HP: %d", monshp);
         refresh();
-        attroff(COLOR_PAIR(2) | A_BOLD);
+        attroff(COLOR_PAIR(1) | A_BOLD);
     }
     else if(fire == 1){
         attron(COLOR_PAIR(1) | A_BOLD);
@@ -619,10 +625,10 @@ void printmessage(int hittype, int fire, int invalidcommand, int newlevel, int m
         attroff(COLOR_PAIR(1) | A_BOLD);
     }
     else if(fire == 2){
-        attron(COLOR_PAIR(2) | A_BOLD);
+        attron(COLOR_PAIR(1) | A_BOLD);
         mvprintw(0,middle_x-6, "What a shot!");
         refresh();
-        attroff(COLOR_PAIR(2) | A_BOLD);
+        attroff(COLOR_PAIR(1) | A_BOLD);
     }}
 }
 
@@ -1213,15 +1219,23 @@ if((i == firstpillar) || (i == secondpillar) || (i == thirdpillar) || (i == 5) |
                 foodi.x = rooms[i].bottomleft.x + 2 + rand() % 3;
                 foodi.y = rooms[i].topleft.y + 2 + rand() % 3;
                 if(map[foodi.x][foodi.y] == '.'){
+                    if(isfood ==0)
                     map[foodi.x][foodi.y] = 'f';
-                }            
+                    else if(isfood == 1)
+                    map[foodi.x][foodi.y] = 'L';
+                    else if(isfood == 2)
+                    map[foodi.x][foodi.y] = 'J';
+
                 }
-                if(isfood == 1){
+                
+                            
+                }
+                if(isfood == 3){
                   position foodi;
                 foodi.x = rooms[i].bottomleft.x + 6 + rand() % 3;
                 foodi.y = rooms[i].topleft.y + 7 + rand() % 3;
                 if(map[foodi.x][foodi.y] == '.'){
-                    map[foodi.x][foodi.y] = 'f';
+                    map[foodi.x][foodi.y] = 'I';
                 }    
                 }
 
@@ -1418,7 +1432,7 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
     attron(COLOR_PAIR(1));
     else if((map[x][y] == 'b'))
     attron(COLOR_PAIR(4));
-    else if((map[x][y] == 'f'))
+    else if((map[x][y] == 'f') || (map[x][y] == 'I') || (map[x][y] == 'L')  || (map[x][y] == 'J') )
     attron(COLOR_PAIR(5));
     else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k') || (map[x][y] == 'a') ||(map[x][y] == 'm'))
     attron(COLOR_PAIR(4));
@@ -1505,7 +1519,7 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
     attroff(COLOR_PAIR(1));
     else if((map[x][y] == 'b'))
     attroff(COLOR_PAIR(4));
-    else if((map[x][y] == 'f'))
+    else if((map[x][y] == 'f') || (map[x][y] == 'I') || (map[x][y] == 'L')  || (map[x][y] == 'J') )
     attroff(COLOR_PAIR(5));
     else if(((map[x][y] <= '5') && ((map[x][y] >= '1'))) || (map[x][y] == 'k')|| (map[x][y] == 'a') ||(map[x][y] == 'm') )
     attroff(COLOR_PAIR(4));
@@ -1592,8 +1606,12 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(j,i,"Δ");
                 else if(realmap[i][j] == 'b')
                 mvprintw(j, i, "\u03A6");
-                else if(realmap[i][j] == 'f')
-                mvprintw(j, i, "Π");
+                else if((realmap[i][j] == 'f') ||(realmap[i][j] == 'I')  )
+                mvprintw(j, i, "α");
+                else if((realmap[i][j] == 'L') )
+                mvprintw(j, i, "β");
+                 else if((realmap[i][j] == 'J') )
+                mvprintw(j, i, "δ");
                 else if(realmap[i][j] == '1')
                 mvprintw(j, i, "\u2692");
                 else if((realmap[i][j] == '2') || (realmap[i][j] == 'k'))
@@ -1625,10 +1643,17 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(a,z,"Δ");
                 else if(map[z][a] == 'b')
                 mvprintw(a, z, "\u03A6");
-                else if(map[z][a] == 'f')
-                mvprintw(a, z, "Π");
-                else if(map[z][a] == '?')
+                 else if((map[z][a] == 'f') ||(map[z][a] == 'I')  )
+                mvprintw(a, z, "α");
+                else if((map[z][a] == 'L') )
+                mvprintw(a, z, "β");
+                 else if((map[z][a] == 'J') )
+                mvprintw(a, z, "δ");
+                else if(map[z][a] == '?'){
+                    attron(COLOR_PAIR(3));
                 mvprintw(a, z, "|");
+                attroff(COLOR_PAIR(3));
+                }
                 else if(map[z][a] == '1')
                 mvprintw(a, z, "Ω");
                 else if((map[z][a] == '2') || (map[z][a] == 'k'))
@@ -1647,6 +1672,7 @@ void printmap(char map[maxx +1][maxy + 1], position player, int color, room room
                 mvprintw(a, z, "☠");
                 else{
                 if(map[z][a] != '#'){
+                    
                 mvprintw(a,z,"%c", map[z][a]);}}
 
                 endtheme(map, z, a, rooms, level, 0);
@@ -1771,17 +1797,33 @@ void foodmenu(data* game){
 
     delwin(window);
     if(choice != game->foodamount){
+        if((game->flist[choice].fkind == NORMAL) ||(game->flist[choice].fkind == GREAT) || (game->flist[choice].fkind == MAGIC)){
         if(game->hunger>=15)
         game->hunger = game->hunger - 15;
         else
-        game->hunger =0;
-        if(game->playerhp<96)
+        game->hunger =0;}
+        if(game->flist[choice].fkind == POISENOUS)
+        game->hunger = game->hunger +5;
         game->playerhp += game->flist[choice].hpamount;
-        else
+        if(game->flist[choice].fkind == GREAT){
+        game->isdamagespell = 1;
+        game->isspeedspell =  0;
+        game->ishealthspell = 0;
+        }
+        if(game->flist[choice].fkind == MAGIC){
+        game->isspeedspell = 1;
+        game->ishealthspell = 0;
+        game->isdamagespell = 0;
+        }
+        if(game->playerhp > 100)
         game->playerhp =100;
+        if(game->playerhp<0)
+        game->playerhp =0;
 
         for(int i =choice;i<game->foodamount-1; i++){
-           game->flist[i].hpamount =game->flist[i+1].hpamount;;
+           game->flist[i].hpamount =game->flist[i+1].hpamount;
+           game->flist[i].fkind =game->flist[i+1].fkind;
+           game->flist[i].ftime = game->flist[i +1].ftime ;
             strcpy(game->flist[i].name,game->flist[i+1].name);
         }
         game->foodamount = game->foodamount -1;
@@ -2042,6 +2084,14 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     int copyx = player->x;
     int copyy = player ->y;
     int roomsnum = roomsearch(rooms[*level], player->x, player->y);
+    if(game->isdamagespell ==1){
+        (*spellcounter) += 1;
+        if((*spellcounter) == 11){
+            (*spellcounter) = 0;
+            game->isdamagespell =0;
+        }
+    }
+   
     if(input == 'w'){
         if((*isspeed)&&(*spellcounter <= 10)){
             player->y = player->y -2;
@@ -2203,8 +2253,12 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 mvprintw(j,i, "Δ");
                 else if(map[*level][i][j] == 'b')
                 mvprintw(j, i, "\u03A6");
-                else if(map[*level][i][j] == 'f')
-                mvprintw(j, i, "Π");
+                 else if((map[*level][i][j] == 'f') ||(map[*level][i][j] == 'I')  )
+                mvprintw(j, i, "α");
+                else if((map[*level][i][j] == 'L') )
+                mvprintw(j, i, "β");
+                 else if((map[*level][i][j] == 'J') )
+                mvprintw(j, i, "δ");
                 else if(map[*level][i][j] == '1')
                 mvprintw(j, i, "Ω");
                 else if(map[*level][i][j] == '2')
@@ -2371,6 +2425,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                     for(int k = 0 ; k<3; k++){
                     if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == j)){
                         rooms[*level][roomsnum].mons[k].hp -= 5;
+                        if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 5;
                         if(rooms[*level][roomsnum].mons[k].hp<=0){
                         rooms[*level][roomsnum].mons[k].hp =0;
                         map[*level][i][j] = '.';
@@ -2402,6 +2458,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
       for(int i =player->y; (i>rooms[*level][roomsnum].topleft.y) && (i> player->y -5); i--){
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
+            rooms[*level][roomsnum].mons[k].hp -= 12;
+            if(game->isdamagespell == 1)
             rooms[*level][roomsnum].mons[k].hp -= 12;
             ishit =1;
             *hittype =2;
@@ -2435,6 +2493,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
             rooms[*level][roomsnum].mons[k].hp -= 12;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 12;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2466,6 +2526,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
             rooms[*level][roomsnum].mons[k].hp -= 12;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 12;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2497,6 +2559,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
             rooms[*level][roomsnum].mons[k].hp -= 12;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 12;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2558,6 +2622,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
             rooms[*level][roomsnum].mons[k].hp -= 15;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 15;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2590,6 +2656,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
             rooms[*level][roomsnum].mons[k].hp -= 15;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 15;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2621,6 +2689,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
             rooms[*level][roomsnum].mons[k].hp -= 15;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 15;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2652,6 +2722,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
             rooms[*level][roomsnum].mons[k].hp -= 15;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 15;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2676,6 +2748,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
       }
       game->wlist[2].count--;
       break;
+    
     }
   
     else if(key != ERR){
@@ -2713,6 +2786,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
             rooms[*level][roomsnum].mons[k].hp -= 5;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 5;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2745,6 +2820,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
             rooms[*level][roomsnum].mons[k].hp -= 5;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 5;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2776,6 +2853,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == player->x)&&(rooms[*level][roomsnum].mons[k].pos.y == i)){
             rooms[*level][roomsnum].mons[k].hp -= 5;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 5;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2807,6 +2886,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         for(int k=0; k<4; k++){
         if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == player->y)){
             rooms[*level][roomsnum].mons[k].hp -= 5;
+            if(game->isdamagespell == 1)
+                        rooms[*level][roomsnum].mons[k].hp -= 5;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2860,6 +2941,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
                 for(int j = player->y -1; j<player->y +2; j++){
                     for(int k = 0 ; k<3; k++){
                     if((rooms[*level][roomsnum].mons[k].pos.x == i)&&(rooms[*level][roomsnum].mons[k].pos.y == j)){
+                        rooms[*level][roomsnum].mons[k].hp -= 10;
+                        if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 10;
                         if(rooms[*level][roomsnum].mons[k].hp<=0){
                         rooms[*level][roomsnum].mons[k].hp =0;
@@ -2924,7 +3007,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
        *invalid = 1;
     }
     
-    if((map[*level][player->x][player->y ] == '.') || (map[*level][player->x][player->y ] == '+') || (map[*level][player->x][player->y ] == '#') ||(map[*level][player->x][player->y ] == '=') ||(map[*level][player->x][player->y ] == '^')||(map[*level][player->x][player->y ] == '?') || (map[*level][player->x][player->y ] == '<') || (map[*level][player->x][player->y ] == '&') ||(map[*level][player->x][player->y ] == '@') || (map[*level][player->x][player->y ] == 'd')|| (map[*level][player->x][player->y ] == '$')|| (map[*level][player->x][player->y ] == 'E')|| (map[*level][player->x][player->y ] == 'b')||(map[*level][player->x][player->y ] == 'f') ||((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '8')) ||(map[*level][player->x][player->y ] == 'k')||(map[*level][player->x][player->y ] == 'a')||(map[*level][player->x][player->y ] == 'm')){
+    if((map[*level][player->x][player->y ] == '.') || (map[*level][player->x][player->y ] == '+') || (map[*level][player->x][player->y ] == '#') ||(map[*level][player->x][player->y ] == '=') ||(map[*level][player->x][player->y ] == '^')||(map[*level][player->x][player->y ] == '?') || (map[*level][player->x][player->y ] == '<') || (map[*level][player->x][player->y ] == '&') ||(map[*level][player->x][player->y ] == '@') || (map[*level][player->x][player->y ] == 'd')|| (map[*level][player->x][player->y ] == '$')|| (map[*level][player->x][player->y ] == 'E')|| (map[*level][player->x][player->y ] == 'b')||(map[*level][player->x][player->y ] == 'f') ||((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '8')) ||(map[*level][player->x][player->y ] == 'k')||(map[*level][player->x][player->y ] == 'a')||(map[*level][player->x][player->y ] == 'm')||(map[*level][player->x][player->y ] == 'L')||(map[*level][player->x][player->y ] == 'J')||(map[*level][player->x][player->y ] == 'I')){
         }
     
         else{
@@ -3213,6 +3296,7 @@ if(map[*level][player->x][player->y] == 'f'){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
         game->flist[game->foodamount].hpamount =5;
        strcpy(game->flist[game->foodamount].name ,"Normal");
+       game->flist[game->foodamount].ftime = time(NULL);
          game->foodamount= game->foodamount + 1;}
          map[*level][player->x][player->y] = '.';
     }}
@@ -3220,6 +3304,51 @@ if(map[*level][player->x][player->y] == 'f'){
     *dontpick =0;
 }
  
+if(map[*level][player->x][player->y] == 'L'){
+    if(!(*dontpick)){
+    if(game->foodamount<5){
+        if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
+        game->flist[game->foodamount].hpamount =8;
+        game->flist[game->foodamount].fkind =GREAT;
+       strcpy(game->flist[game->foodamount].name ,"Great");
+        game->flist[game->foodamount].ftime = time(NULL);
+         game->foodamount= game->foodamount + 1;}
+         map[*level][player->x][player->y] = '.';
+    }}
+    else
+    *dontpick =0;
+}
+ 
+if(map[*level][player->x][player->y] == 'J'){
+    if(!(*dontpick)){
+    if(game->foodamount<5){
+        if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
+        game->flist[game->foodamount].hpamount =10;
+        game->flist[game->foodamount].fkind =MAGIC;
+       strcpy(game->flist[game->foodamount].name ,"Magic");
+        game->flist[game->foodamount].ftime = time(NULL);
+         game->foodamount= game->foodamount + 1;}
+         map[*level][player->x][player->y] = '.';
+    }}
+    else
+    *dontpick =0;
+}
+ 
+if(map[*level][player->x][player->y] == 'I'){
+    if(!(*dontpick)){
+    if(game->foodamount<5){
+        if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
+        game->flist[game->foodamount].hpamount = -5;
+        game->flist[game->foodamount].fkind =POISENOUS;
+       strcpy(game->flist[game->foodamount].name ,"Normal");
+        game->flist[game->foodamount].ftime = time(NULL);
+         game->foodamount= game->foodamount + 1;}
+         map[*level][player->x][player->y] = '.';
+    }}
+    else
+    *dontpick =0;
+}
+  
  if(((map[*level][player->x][player->y ] >= '1')&& (map[*level][player->x][player->y ] <= '5')) || (map[*level][player->x][player->y ] == 'k')|| (map[*level][player->x][player->y ] == 'm')|| (map[*level][player->x][player->y ] == 'a')){
     if(!(*dontpick)&& (!dontchoose)){
     while(1){
@@ -3401,15 +3530,31 @@ game.savelevel =0;
 int newlevel =0;
 int newroom =0;
 time_t htime = time(NULL);
+time_t ftime = time(NULL);
 int hremaining =0;
 int ishungry =0;
 time_t enchanttime =0;
 int enchantremaining =0;
 int recover =0;
-
-
+int fremaining = 0;
 halfdelay(10);
 while(1){
+
+        for(int i=0; i<6; i++){
+            if((game.flist[i].fkind == NORMAL) && (difftime(time(NULL), game.flist[i].ftime)> 40)){
+            game.flist[i].fkind = POISENOUS;
+            game.flist[i].hpamount = -5;
+            game.flist[i].ftime = time(NULL);
+
+            }
+            else if((game.flist[i].fkind == GREAT || game.flist[i].fkind == MAGIC ) && (difftime(time(NULL), game.flist[i].ftime) > 40)){
+            game.flist[i].ftime = time(NULL);
+            game.flist[i].fkind = NORMAL;
+            game.flist[i].hpamount = 5;
+            strcpy(game.flist[i].name, "Normal");
+            }
+       }
+
     if(game.playerhp <= 0){
         game.endgame =1;
         if(updateUser(username, &game)){
@@ -3610,6 +3755,7 @@ if(win && game.endgame){
     attron(COLOR_PAIR(1) | A_BOLD);
     printyouwon();
      printttt(username);
+     printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(1) | A_BOLD);
     getch();
 }
@@ -3618,6 +3764,7 @@ else if(!win && game.endgame){
        cbreak();
     attron(COLOR_PAIR(1) | A_BOLD);
     printyoulost();
+    printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(1) | A_BOLD);
     getch();
 }
@@ -3718,6 +3865,7 @@ int newroom =0;
 int ishungry =0;
 time_t htime = time(NULL);
 time_t spelltime = time(NULL);
+time_t ftime = time(NULL);
 game.spellcounter =0;
 int hremaining =0;
 int enchantremaining =0;
@@ -3729,9 +3877,29 @@ game.ishealthspell =0;
 game.isspeedspell =0;
 game.isdamagespell =0;
 int spellremain =0;
+for(int i=0; i<6; i++){
+game.flist[i].fkind =NORMAL;
+}
+int fremaining =0;
+
 
 halfdelay(10);
 while(1){
+           for(int i=0; i<6; i++){
+            if((game.flist[i].fkind == NORMAL) && (difftime(time(NULL), game.flist[i].ftime)> 40)){
+            game.flist[i].fkind = POISENOUS;
+            game.flist[i].hpamount = -5;
+            game.flist[i].ftime = time(NULL);
+
+            }
+            else if((game.flist[i].fkind == GREAT || game.flist[i].fkind == MAGIC ) && (difftime(time(NULL), game.flist[i].ftime) > 40)){
+            game.flist[i].ftime = time(NULL);
+            game.flist[i].fkind = NORMAL;
+            game.flist[i].hpamount = 5;
+            strcpy(game.flist[i].name, "Normal");
+            }
+       }
+
     if(game.playerhp <= 0){
         game.endgame =1;
         break;
@@ -3853,23 +4021,6 @@ if(game.ishealthspell){
     }
 }
 
-else if(game.isdamagespell){
-    if(game.spellcounter<=20){
-    spellremain = (int)difftime(time(NULL), spelltime);
-    
-    if(spellremain>=1){
-        if(game.playerhp<99)
-        game.playerhp+=2;
-        spelltime = time(NULL);
-        game.spellcounter++;
-    }
-    }
-    else{
-        game.spellcounter =0;
-        game.ishealthspell =0;
-    }
-}
-
 
 int input =0;
 int hittype =0;
@@ -3969,6 +4120,7 @@ if(win && game.endgame){
     attron(COLOR_PAIR(4) | A_BOLD);
      printyouwon();
      printttt(username);
+     printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(4) | A_BOLD);
     refresh();
     getch();
@@ -3978,6 +4130,7 @@ else if ( !win && game.endgame){
        clear();
        attron(COLOR_PAIR(1) | A_BOLD);
     printyoulost();
+    printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(1) | A_BOLD);
     refresh();
     getch();
