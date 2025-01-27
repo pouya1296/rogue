@@ -36,6 +36,7 @@ typedef struct{
 typedef struct{
     int kind;
     int hp;
+    int movement;
     position pos;
 
 }monster;
@@ -60,7 +61,7 @@ typedef struct{
     int islocked;
     int theme;
     int goldamount;
-    monster mons[4];
+    monster mons[6];
     int monsnum;
 } room;
 
@@ -120,6 +121,7 @@ int ishealthspell;
 int isspeedspell;
 int isdamagespell;
 int spellcounter;
+int recover;
 } data;
 
 
@@ -127,7 +129,7 @@ int spellcounter;
 #include <ncurses.h>
 #include <string.h>
 
-void printttt(char username[]) {
+void printttt(char username[], int score) {
     char text[][200] = {
 "    ⠀⠀⠀⢀⣠⣴⠶⠶⣦⣤⣀⣤⣶⣶⣶⡶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⣶⣶⣶⣦⣄⣤⣴⠶⠶⢦⣤⡀⠀⠀⠀⠀⠀ ",
 "⠀⠀⠀⠀⠀⢠⡿⠉⢀⣠⣀⣀⠈⣽⠏⠉⠉⠙⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⣿⠁⣄⣦⣤⣀⠈⠻⣦⠀⠀⠀⠀⠀",
@@ -162,8 +164,9 @@ void printttt(char username[]) {
             for(int j =0; j<strlen(username); j++){
                 mvprintw(4, startx +25 -( strlen(username))/2 + j, "%c", username[j]);
             }
+            mvprintw(6,startx +25-  ( strlen("SCORE: "))/2 ,"SCORE: %d", score);
         }
-    }
+    } 
 
  
 }
@@ -280,7 +283,7 @@ void printenter() {
  
 }
 
-void printyoulost() {
+void printyoulost(int score) {
     char you_lost[][200] = {        
         "____    ____   ______    __    __      __        ______        _______  ___________ ",
         "\\   \\  /   /  /  __  \\  |  |  |  |    |  |      /  __  \\      /       ||           |",
@@ -297,6 +300,7 @@ void printyoulost() {
     for (int i = 0; i < 6; i++) {
         mvprintw(starty + i, startx, "%s", you_lost[i]);
     }
+    mvprintw(starty+8,COLS/2- 5- ( strlen("SCORE: "))/2 ,"SCORE: %d", score);
 
 }
 
@@ -446,40 +450,41 @@ for(int i =0; i<maxx +1; i++){
 }
 }
 
-void initializerooms(room rooms){
-        rooms.topleft.x = 0;
-        rooms.topleft.y =0;
-        rooms.topright.x = 0;
-        rooms.topright.y =0;
-        rooms.bottomleft.x = 0;
-        rooms.bottomleft.y =0;
-        rooms.bottomright.x = 0;
-        rooms.bottomright.y =0;
+void initializerooms(room *rooms){
+        rooms->topleft.x = 0;
+        rooms->topleft.y =0;
+        rooms->topright.x = 0;
+        rooms->topright.y =0;
+        rooms->bottomleft.x = 0;
+        rooms->bottomleft.y =0;
+        rooms->bottomright.x = 0;
+        rooms->bottomright.y =0;
         for(int j=0;j<6; j++ ){
-            rooms.door[j].x = 0;
-            rooms.door[j].y = 0;
+            rooms->door[j].x = 0;
+            rooms->door[j].y = 0;
         }
-        rooms.stairs =0;
-        rooms.trap[0].x =0;
-        rooms.trap[0].y = 0;
-        rooms.trap[1].x =0;
-        rooms.trap[1].y = 0;
-        rooms.ishiddend =0;
-        rooms.window.x =0;
-        rooms.window.y =0;
-        rooms.player =0;
-        rooms.isvisible =0;
-        rooms.firsttime =0;
-        rooms.istrap =0;
-        rooms.islocked =-1;
-        rooms.theme =Regular;
-        for(int i =0; i<4; i++){
-        rooms.mons[i].hp =5;
-        rooms.mons[i].kind = DEAMON;
-        rooms.mons[i].pos.x =0;
-        rooms.mons[i].pos.y =0;
+        rooms->stairs =0;
+        rooms->trap[0].x =0;
+        rooms->trap[0].y = 0;
+        rooms->trap[1].x =0;
+        rooms->trap[1].y = 0;
+        rooms->ishiddend =0;
+        rooms->window.x =0;
+        rooms->window.y =0;
+        rooms->player =0;
+        rooms->isvisible =0;
+        rooms->firsttime =0;
+        rooms->istrap =0;
+        rooms->islocked =-1;
+        rooms->theme =Regular;
+        for(int i =0; i<6; i++){
+        rooms->mons[i].hp =5;
+        rooms->mons[i].kind = DEAMON;
+        rooms->mons[i].pos.x =0;
+        rooms->mons[i].pos.y =0;
+        rooms->mons[i].movement =0;
         }
-        rooms.monsnum =0;
+        rooms->monsnum =0;
     }
 
 int isroomvalid(room newroom, room rooms[], int numberoffilled){
@@ -569,9 +574,9 @@ void makerandomroom(room rooms[], int numberofrooms, position* player, int level
             i++;
         }
         else{
-            initializerooms(rooms[i]);
+            initializerooms(&(rooms[i]));
             if(numberofattemps == 40){
-                initializerooms(rooms[i -1]);
+                initializerooms(&(rooms[i -1]));
                 i--;
                 numberoffilled -=2;
                 numberofattemps =0;
@@ -2091,7 +2096,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             game->isdamagespell =0;
         }
     }
-   
+
     if(input == 'w'){
         if((*isspeed)&&(*spellcounter <= 10)){
             player->y = player->y -2;
@@ -2379,7 +2384,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         game->wlist[1].isactive = 0;
     }
 
-    else if((input == 'p') && (game->wlist[2].isactive != 1) && (game->wlist[2].count >0)){
+    else if((input == ';') && (game->wlist[2].isactive != 1) && (game->wlist[2].count >0)){
          
         game->wlist[2].isactive = 1;
         for(int i =0; i<5; i++){
@@ -2388,7 +2393,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         }
     }
 
-    else if((input == 'p') && (game->wlist[2].isactive == 1)){
+    else if((input == ';') && (game->wlist[2].isactive == 1)){
         game->wlist[2].isactive = 0;
     }
 
@@ -3022,33 +3027,51 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][0].isvisible =1;
             if(*level != 0)
             *newroom =1;
+            for(int i =0; i<6; i++){
+                rooms[*level][0].mons[i].movement =0;
+            }
         }
         else if(((player ->x == rooms[*level][1].door[1].x ) &&(player ->y == rooms[*level][1].door[1].y )) ||((player ->x == rooms[*level][1].door[0].x ) &&(player ->y == rooms[*level][1].door[0].y )) || ((player ->x == rooms[*level][1].door[2].x ) &&(player ->y == rooms[*level][1].door[2].y ))){
             if(rooms[*level][1].theme !=Nightmare)
             rooms[*level][1].isvisible =1;
             *newroom =1;
+            for(int i =0; i<6; i++){
+                rooms[*level][1].mons[i].movement =0;
+            }
         }
         else if((player ->x == rooms[*level][2].door[0].x ) && (player ->y == rooms[*level][2].door[0].y ) ){
             *newroom =1;
             if(rooms[*level][2].theme !=Nightmare)
             rooms[*level][2].isvisible =1;
+            for(int i =0; i<6; i++){
+                rooms[*level][2].mons[i].movement =0;
+            }
         }
         else if(((player ->x == rooms[*level][3].door[3].x) &&(player ->y == rooms[*level][3].door[3].y) ) || ((player ->x == rooms[*level][3].door[1].x) &&(player ->y == rooms[*level][3].door[1].y) )){
             *newroom =1;
             if(rooms[*level][3].theme !=Nightmare)
             rooms[*level][3].isvisible =1;
+            for(int i =0; i<6; i++){
+                rooms[*level][3].mons[i].movement =0;
+            }
         }
         else if(((player ->x == rooms[*level][4].door[3].x) &&(player ->y == rooms[*level][4].door[3].y)) || ((player ->x == rooms[*level][4].door[1].x) &&(player ->y == rooms[*level][4].door[1].y))||((player ->x == rooms[*level][4].door[0].x) &&(player ->y == rooms[*level][4].door[0].y)  )){
             *newroom =1;
             if(rooms[*level][4].theme !=Nightmare)
             rooms[*level][4].isvisible =1;
+            for(int i =0; i<6; i++){
+                rooms[*level][4].mons[i].movement =0;
+            }
         }
          else if((player ->x == rooms[*level][5].door[0].x) &&(player ->y == rooms[*level][5].door[0].y) ){
             *newroom =1;
             if(rooms[*level][5].theme !=Nightmare)
             rooms[*level][5].isvisible =1;
+            for(int i =0; i<6; i++){
+                rooms[*level][5].mons[i].movement =0;
+            }
         }
-        
+
     }
     
     if(map[*level][player ->x][player ->y] == 'd'){
@@ -3294,7 +3317,7 @@ if(map[*level][player->x][player->y] == 'f'){
     if(!(*dontpick)){
     if(game->foodamount<5){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
-        game->flist[game->foodamount].hpamount =5;
+        game->flist[game->foodamount].hpamount =10;
        strcpy(game->flist[game->foodamount].name ,"Normal");
        game->flist[game->foodamount].ftime = time(NULL);
          game->foodamount= game->foodamount + 1;}
@@ -3308,7 +3331,7 @@ if(map[*level][player->x][player->y] == 'L'){
     if(!(*dontpick)){
     if(game->foodamount<5){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
-        game->flist[game->foodamount].hpamount =8;
+        game->flist[game->foodamount].hpamount =16;
         game->flist[game->foodamount].fkind =GREAT;
        strcpy(game->flist[game->foodamount].name ,"Great");
         game->flist[game->foodamount].ftime = time(NULL);
@@ -3323,7 +3346,7 @@ if(map[*level][player->x][player->y] == 'J'){
     if(!(*dontpick)){
     if(game->foodamount<5){
         if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme != Nightmare){
-        game->flist[game->foodamount].hpamount =10;
+        game->flist[game->foodamount].hpamount =20;
         game->flist[game->foodamount].fkind =MAGIC;
        strcpy(game->flist[game->foodamount].name ,"Magic");
         game->flist[game->foodamount].ftime = time(NULL);
@@ -3456,6 +3479,106 @@ if((map[*level][player->x][player->y ] >= '6')&& (map[*level][player->x][player-
             }}
         }
     }
+
+if((input == 32)||(input == 'w')||(input == 'a')||(input == 's')||(input == 'd')||(input == 'q')||(input == 'e')||(input == 'z')||(input == 'c')){
+
+for(int i=0; i<6; i++){
+    if(rooms[*level][roomsnum].mons[i].hp>0){
+        if(((player->x==rooms[*level][roomsnum].mons[i].pos.x)||(player->x==rooms[*level][roomsnum].mons[i].pos.x+1)||(player->x==rooms[*level][roomsnum].mons[i].pos.x-1))&&((player->y==rooms[*level][roomsnum].mons[i].pos.y)||(player->y==rooms[*level][roomsnum].mons[i].pos.y+1)||(player->y==rooms[*level][roomsnum].mons[i].pos.y-1))){
+            game->playerhp -= (rooms[*level][roomsnum].mons[i].kind + 1) *1;
+            game->recover =0;
+        }
+        else{
+            if(((rooms[*level][roomsnum].mons[i].kind == GIANT )||(rooms[*level][roomsnum].mons[i].kind == UNDEED)||(rooms[*level][roomsnum].mons[i].kind == SNAKE))){
+            
+            if((player->x > rooms[*level][roomsnum].mons[i].pos.x + 1)&&(game->map[*level][rooms[*level][roomsnum].mons[i].pos.x + 1][rooms[*level][roomsnum].mons[i].pos.y] == '.')){
+                if((rooms[*level][roomsnum].mons[i].kind == GIANT )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x + 1][rooms[*level][roomsnum].mons[i].pos.y] = 'G';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.x++;
+                }
+                else if((rooms[*level][roomsnum].mons[i].kind == UNDEED )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x + 1][rooms[*level][roomsnum].mons[i].pos.y] = 'U';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.x++;
+                }
+                if((rooms[*level][roomsnum].mons[i].kind == SNAKE )){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x + 1][rooms[*level][roomsnum].mons[i].pos.y] = 'S';
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.x++;
+                }
+            }
+            
+           else if((player->y > rooms[*level][roomsnum].mons[i].pos.y + 1)&&(game->map[*level][rooms[*level][roomsnum].mons[i].pos.x ][rooms[*level][roomsnum].mons[i].pos.y+1] == '.')){
+                if((rooms[*level][roomsnum].mons[i].kind == GIANT )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y+1] = 'G';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.y++;
+                }
+                else if((rooms[*level][roomsnum].mons[i].kind == UNDEED )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y+1] = 'U';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.y++;
+                }
+                if((rooms[*level][roomsnum].mons[i].kind == SNAKE )){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y+1] = 'S';
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.y++;
+                }
+            }
+            
+           else if((player->y < rooms[*level][roomsnum].mons[i].pos.y - 1)&&(game->map[*level][rooms[*level][roomsnum].mons[i].pos.x ][rooms[*level][roomsnum].mons[i].pos.y-1] == '.')){
+                if((rooms[*level][roomsnum].mons[i].kind == GIANT )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y-1] = 'G';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.y--;
+                }
+                else if((rooms[*level][roomsnum].mons[i].kind == UNDEED )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y-1] = 'U';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.y--;
+                }
+                if((rooms[*level][roomsnum].mons[i].kind == SNAKE )){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y-1] = 'S';
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.y--;
+                }
+            }
+                  
+           else if((player->x < rooms[*level][roomsnum].mons[i].pos.x - 1)&&(game->map[*level][rooms[*level][roomsnum].mons[i].pos.x - 1][rooms[*level][roomsnum].mons[i].pos.y] == '.')){
+                if((rooms[*level][roomsnum].mons[i].kind == GIANT )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x - 1][rooms[*level][roomsnum].mons[i].pos.y] = 'G';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.x--;
+                }
+                else if((rooms[*level][roomsnum].mons[i].kind == UNDEED )&& (rooms[*level][roomsnum].mons[i].movement <5)){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x - 1][rooms[*level][roomsnum].mons[i].pos.y] = 'U';
+                rooms[*level][roomsnum].mons[i].movement++;
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.x--;
+                }
+                if((rooms[*level][roomsnum].mons[i].kind == SNAKE )){
+                game->map[*level][rooms[*level][roomsnum].mons[i].pos.x - 1][rooms[*level][roomsnum].mons[i].pos.y] = 'S';
+                 game->map[*level][rooms[*level][roomsnum].mons[i].pos.x][rooms[*level][roomsnum].mons[i].pos.y] = '.';
+                rooms[*level][roomsnum].mons[i].pos.x--;
+                }
+            }
+            
+            
+            }
+        }
+
+    }
+    }
+
+}
 }
 
 void printinfo(int hp, int level, int hits, int gold, int ancient, int brokenancient, int goldsave){
@@ -3514,6 +3637,7 @@ char copypass[4] = {0};
 position save;
 time_t temptime = time(NULL);
 time_t starttime = time(NULL);
+time_t spelltime = time(NULL);
 int remaining = 30;
 int passwordmode = 0;
 int passend =1;
@@ -3535,8 +3659,8 @@ int hremaining =0;
 int ishungry =0;
 time_t enchanttime =0;
 int enchantremaining =0;
-int recover =0;
 int fremaining = 0;
+int spellremain =0;
 halfdelay(10);
 while(1){
 
@@ -3633,7 +3757,7 @@ else{
 
 
 if(ishungry){
-    recover =0;
+    game.recover =0;
     hremaining = (int)difftime(time(NULL), htime);
     if(hremaining >= 1){
     game.playerhp = game.playerhp -1;
@@ -3644,21 +3768,44 @@ if(ishungry){
 
 else{
     hremaining = (int)difftime(time(NULL), htime);
-    if((recover>=25)&&(game.playerhp<100)&&(!isenchant)&&(hremaining>=1))
+    if((game.recover>=20)&&(game.playerhp<100)&& (!isenchant)&&(hremaining>=1))
     game.playerhp++;
 
     if(hremaining>=1){
-    if(game.hunger<100)
+    if((game.hunger<100)&&(!game.ishealthspell))
     game.hunger += 1;
-    recover++;
+    if(game.hunger<55)
+    game.recover++;
         htime = time(NULL); }
+        if(game.playerhp == 100)
+        game.recover =0;
 }
 
-if(game.hunger>50){
+if(game.hunger>55){
     ishungry =1;
+    game.recover =0;
 }
+
 else
 ishungry =0;
+
+if(game.ishealthspell){
+    if(game.spellcounter<=10){
+    spellremain = (int)difftime(time(NULL), spelltime);
+    
+    if(spellremain>=1){
+        if(game.playerhp<99)
+        game.playerhp+=2;
+        spelltime = time(NULL);
+        game.spellcounter++;
+    }
+    }
+    else{
+        game.spellcounter =0;
+        game.ishealthspell =0;
+    }
+}
+
 
     clear();
 int input =0;
@@ -3671,15 +3818,18 @@ if(passwordmode == 1){
     passend =0;
     changepass = rand() % 4;
     isold = rand() %3;
+
 }
+
 if(remaining <=0){
     passend =1;
     remaining = 30;
 }
+
 if((!passend)){
     remaining = 30 - (int)difftime(time(NULL), temptime);
      mvprintw(0, middle_x - 15, "Remaining time: %d seconds", remaining);
-     if((isold == 5)&& (game.level != 2) &&(game.level != 3)){
+     if((isold == 1)&& (game.level != 2) &&(game.level != 3)){
          attron(COLOR_PAIR(1));
          mvprintw(3, middle_x -15, "password: " );
          for(int i =0; i<4;i++){
@@ -3690,11 +3840,12 @@ if((!passend)){
     attron(COLOR_PAIR(1));
     mvprintw(3, middle_x -15, "password: %s", password );
     attroff(COLOR_PAIR(1));}
-    if((changepass == 5)&& (game.level != 2) &&(game.level != 3)){
+    if((changepass == 2)&& (game.level != 2) &&(game.level != 3)){
         if(  ( remaining == 25) || ( ( remaining == 27)))
         pass(password, game,invalid, 0, username);
     }
 }
+
 if(passend){
 changepass = 0;
 isold =0;
@@ -3754,16 +3905,17 @@ if(win && game.endgame){
     cbreak();
     attron(COLOR_PAIR(1) | A_BOLD);
     printyouwon();
-     printttt(username);
+     printttt(username,game.totalscore);
      printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(1) | A_BOLD);
     getch();
 }
+
 else if(!win && game.endgame){
        clear();
        cbreak();
     attron(COLOR_PAIR(1) | A_BOLD);
-    printyoulost();
+    printyoulost(game.totalscore);
     printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(1) | A_BOLD);
     getch();
@@ -3835,7 +3987,7 @@ game.brokenancient =0;
 game.hunger =0;
 for(int j =0; j<4; j++){
 for(int i =0; i<game.numberofrooms; i++){
-initializerooms(game.rooms[j][i]);}}
+initializerooms(&(game.rooms[j][i]));}}
 for(int i =0; i<4; i++){
 makerandomroom(game.rooms[i], game.numberofrooms, &game.player, i);
 makemap(game.map[i],game.rooms[i], game.numberofrooms, game.player ,i);
@@ -3872,7 +4024,7 @@ int enchantremaining =0;
 int monshp =0;
 initializeweapon(&game);
 initializespell(&game);
-int recover =0;
+game.recover =0;
 game.ishealthspell =0;
 game.isspeedspell =0;
 game.isdamagespell =0;
@@ -3976,7 +4128,7 @@ else{
 }}
 
 if(ishungry){
-    recover =0;
+    game.recover =0;
     hremaining = (int)difftime(time(NULL), htime);
     if(hremaining >= 1){
     game.playerhp = game.playerhp -1;
@@ -3987,25 +4139,29 @@ if(ishungry){
 
 else{
     hremaining = (int)difftime(time(NULL), htime);
-    if((recover>=25)&&(game.playerhp<100)&& (!isenchant)&&(hremaining>=1))
+    if((game.recover>=25)&&(game.playerhp<100)&& (!isenchant)&&(hremaining>=1))
     game.playerhp++;
 
     if(hremaining>=1){
-    if(game.hunger<100)
+    if((game.hunger<100) && (!game.ishealthspell))
     game.hunger += 1;
-    recover++;
+    if(game.hunger<55)
+    game.recover++;
         htime = time(NULL); }
+        if(game.playerhp == 100)
+        game.recover =0;
 }
 
-if(game.hunger>50){
+if(game.hunger>55){
     ishungry =1;
+    game.recover =0;
 }
 
 else
 ishungry =0;
 
 if(game.ishealthspell){
-    if(game.spellcounter<=20){
+    if(game.spellcounter<=10){
     spellremain = (int)difftime(time(NULL), spelltime);
     
     if(spellremain>=1){
@@ -4041,7 +4197,7 @@ if(remaining <=0){
 if((!passend)){
     remaining = 30 - (int)difftime(time(NULL), temptime);
      mvprintw(0, middle_x - 15, "Remaining time: %d seconds", remaining);
-     if((isold == 5)&& (game.level != 2) &&(game.level != 3)){
+     if((isold == 1)&& (game.level != 2) &&(game.level != 3)){
          attron(COLOR_PAIR(1));
          mvprintw(3, middle_x -15, "password: " );
          for(int i =0; i<4;i++){
@@ -4052,7 +4208,7 @@ if((!passend)){
     attron(COLOR_PAIR(1));
     mvprintw(3, middle_x -15, "password: %s", password );
     attroff(COLOR_PAIR(1));}
-    if((changepass == 5)&& (game.level != 2) &&(game.level != 3)){
+    if((changepass == 2)&& (game.level != 2) &&(game.level != 3)){
         if(  ( remaining == 25) || ( ( remaining == 27)))
         pass(password, game,invalid, 0, username);
     }
@@ -4119,8 +4275,8 @@ if(win && game.endgame){
 
     attron(COLOR_PAIR(4) | A_BOLD);
      printyouwon();
-     printttt(username);
      printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
+     printttt(username, game.totalscore);
     attroff(COLOR_PAIR(4) | A_BOLD);
     refresh();
     getch();
@@ -4129,7 +4285,7 @@ if(win && game.endgame){
 else if ( !win && game.endgame){
        clear();
        attron(COLOR_PAIR(1) | A_BOLD);
-    printyoulost();
+    printyoulost(game.totalscore);
     printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
     attroff(COLOR_PAIR(1) | A_BOLD);
     refresh();
