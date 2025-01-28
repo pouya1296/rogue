@@ -37,6 +37,7 @@ typedef struct{
     int kind;
     int hp;
     int movement;
+    int dontmove;
     position pos;
 
 }monster;
@@ -484,8 +485,10 @@ void initializerooms(room *rooms){
         rooms->mons[i].pos.x =0;
         rooms->mons[i].pos.y =0;
         rooms->mons[i].movement =0;
+        rooms->mons[i].dontmove =0;
         }
         rooms->monsnum =0;
+
     }
 
 int isroomvalid(room newroom, room rooms[], int numberoffilled){
@@ -2669,6 +2672,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
             ishit =1;
+            rooms[*level][roomsnum].mons[k].dontmove =1;
             *hittype =2;
             *invalid =0;
             if(rooms[*level][roomsnum].mons[k].hp <= 0){
@@ -2702,6 +2706,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                   rooms[*level][roomsnum].mons[k].dontmove =1;     
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2735,6 +2740,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                        rooms[*level][roomsnum].mons[k].dontmove =1;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -2768,6 +2774,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                        rooms[*level][roomsnum].mons[k].dontmove =1;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -3190,6 +3197,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                        rooms[*level][roomsnum].mons[k].dontmove =1;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -3224,6 +3232,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                        rooms[*level][roomsnum].mons[k].dontmove =1;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -3257,6 +3266,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                        rooms[*level][roomsnum].mons[k].dontmove =1;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -3290,6 +3300,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             rooms[*level][roomsnum].mons[k].hp -= 15;
             if(game->isdamagespell == 1)
                         rooms[*level][roomsnum].mons[k].hp -= 15;
+                        rooms[*level][roomsnum].mons[k].dontmove = 1;
             ishit =1;
             *hittype =2;
             *invalid =0;
@@ -4021,7 +4032,7 @@ for(int i=0; i<6; i++){
             game->recover =0;
         }
         else{
-            if(((rooms[*level][roomsnum].mons[i].kind == GIANT )||(rooms[*level][roomsnum].mons[i].kind == UNDEED)||(rooms[*level][roomsnum].mons[i].kind == SNAKE))){
+            if(((rooms[*level][roomsnum].mons[i].kind == GIANT )||(rooms[*level][roomsnum].mons[i].kind == UNDEED)||(rooms[*level][roomsnum].mons[i].kind == SNAKE))&&(rooms[*level][roomsnum].mons[i].dontmove ==0)){
             
             if((player->x > rooms[*level][roomsnum].mons[i].pos.x + 1)&&(game->map[*level][rooms[*level][roomsnum].mons[i].pos.x + 1][rooms[*level][roomsnum].mons[i].pos.y] == '.')){
                 if((rooms[*level][roomsnum].mons[i].kind == GIANT )&& (rooms[*level][roomsnum].mons[i].movement <5)){
@@ -4300,7 +4311,7 @@ if(ishungry){
 
 else{
     hremaining = (int)difftime(time(NULL), htime);
-    if((game.recover>=20)&&(game.playerhp<100)&& (!isenchant)&&(hremaining>=1))
+    if((game.recover>=25)&&(game.playerhp<100)&& (!isenchant)&&(hremaining>=1))
     game.playerhp++;
 
     if(hremaining>=1){
@@ -4836,3 +4847,4 @@ clear();
 endwin();
 }
 #endif
+
