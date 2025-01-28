@@ -3,6 +3,26 @@
 #include <stdlib.h>
 #include <time.h>
 
+void printnew() {
+    char text[][100] = {        
+        " _   _ ________          __",
+        "| \\ | |  ____\\ \\        / /",
+        "|  \\| | |__   \\ \\  /\\  / / ", 
+        "| . ` |  __|   \\ \\/  \\/ /  ", 
+        "| |\\  | |____   \\  /\\  /   ", 
+        "|_| \\_|______|   \\/  \\/"
+    };
+
+
+    int starty = 1;
+    int startx = (COLS - strlen(text[0])) / 2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+}
+
 int isusernamevalid(char newusername[100]){
     char information[110] = {0};
     FILE *user = fopen("userinformation.txt", "r");
@@ -147,7 +167,8 @@ void randompassword(char password[100]){
 
 
 void registerUser(){
- 
+ initscr();
+ start_color();
 clear();
 curs_set(true);
 cbreak();
@@ -158,12 +179,15 @@ srand(time(0));
     char email[100] = {0};
     char question[100] = {0};
     char answer[100] = {0};
-    int boxheight = 25;
+    int boxheight = 20;
     int boxwidth = 80;
-    int starty = (LINES - boxheight) /2;
+    int starty = 5 + (LINES - boxheight) /2;
     int startx = (COLS - boxwidth) /2;
     
-    init_pair(1,COLOR_WHITE, COLOR_BLACK);
+    init_pair(1,COLOR_MAGENTA, COLOR_BLACK);
+    attron(COLOR_PAIR(1));
+    printnew();
+    attroff(COLOR_PAIR(1));
 
    FILE *file = fopen("userinformation.txt", "a");
    WINDOW *window = newwin(boxheight, boxwidth, starty, startx);
@@ -267,8 +291,6 @@ while (1)
   curs_set(false);
   clear();
   delwin(window);
-  nocbreak();
-
-
+  endwin();
 }
 

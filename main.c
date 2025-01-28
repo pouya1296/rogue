@@ -6,13 +6,13 @@
 
 
 int main(){
+setlocale(LC_ALL, "");
 
-initscr();
 curs_set(false);
 start_color();
+
 startmenu();
 
 
-endwin();
     return 0;
 }

@@ -1,6 +1,55 @@
 #include <ncurses.h>
 #include <string.h>
 
+
+void printshape() {
+    char shape[][100] = {        
+        " .-=========-.",
+        " \\'-=======-'/",
+        " _|   .=.   |_",
+        "((|  {{1}}  |))",
+        " \\|   /|\\   |/",
+        "  \\__ '`' __/",
+        "    _`) (`_",
+        "  _/_______\\_",
+        " /___________\\"
+    };
+
+
+
+    int starty = 15;
+    int startx = 4;
+
+    for (int i = 0; i < 9; i++) {
+        mvprintw(starty + i, startx, "%s", shape[i]);
+    }
+
+}
+
+
+void printlogin() {
+    char text[][100] = {        
+        " _      ____   _____ _____ _   _ ",
+        "| |    / __ \\ / ____|_   _| \\ | |",
+        "| |   | |  | | |  __  | | |  \\| |",
+        "| |   | |  | | | |_ | | | | . ` |",
+        "| |___| |__| | |__| |_| |_| |\\  |",
+        "|______\\____/ \\_____|_____|_| \\_|"
+    };
+
+    int starty = 1;
+    int startx = (COLS - strlen(text[0])) / 2;
+
+    for (int i = 0; i < 6; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+
+}
+
+
+
+
+
 int usernamevalid(char newusername[100]){
     char information[110] = {0};
     FILE *user = fopen("userinformation.txt", "r");
@@ -105,6 +154,8 @@ void findquestion(char question[100] , char username[100]){
 
 
 int startlogin(char username[100]){
+    initscr();
+    start_color();
     clear();
     curs_set(true);
     cbreak();
@@ -113,17 +164,21 @@ int startlogin(char username[100]){
     char answer[100] = {0};
     char question[100] = {0};
 
-    int boxheight = 25;
-    int boxwidth = 80;
-    int y_box = (LINES - boxheight) /2;
+    int boxheight = 20;
+    int boxwidth = 70;
+    int y_box =  5 +(LINES - boxheight) /2;
     int x_box = (COLS - boxwidth) /2;
     
-    init_pair(1,COLOR_WHITE, COLOR_GREEN);
+    init_pair(1,COLOR_GREEN, COLOR_BLACK);
 
    FILE *file = fopen("userinformation.txt", "a");
    WINDOW *window = newwin(boxheight, boxwidth, y_box, x_box);
    box(window, 0, 0);
    wbkgd(window, COLOR_PAIR(1));
+   attron(COLOR_PAIR(1));
+   printshape();
+   printlogin();
+   attroff(COLOR_PAIR(1));
    refresh();
    wrefresh(window);
    int choice =0;
@@ -140,18 +195,18 @@ int startlogin(char username[100]){
   return 0;
    }
    else{
-    mvwprintw(window, 2, 1, "                                                    ");
+    mvwprintw(window, 2, 1, "                                                     ");
     mvwprintw(window, 2, 1, "forgotten password? press f else press other keys");
     choice = wgetch(window);
     if(choice == 'f'){
-         mvwprintw(window, 2, 1, "                                                     ");
+         mvwprintw(window, 2, 1, "                                                  ");
       while (1)
 {
    mvwprintw(window, 1, 1, "Enter your username: ");
    wrefresh(window); 
    wgetstr(window, username);
    if(usernamevalid(username)){
-    mvwprintw(window, 2, 1, "                                                     ");
+    mvwprintw(window, 2, 1, "                                                   ");
     wrefresh(window);
     break;
    }
@@ -170,7 +225,7 @@ int startlogin(char username[100]){
    wrefresh(window); 
    wgetstr(window, answer);
    if(questionvalid(answer, username)){
-    mvwprintw(window, 4, 1, "                 ");
+    mvwprintw(window, 4, 1, "                  ");
     wrefresh(window);
     break;
    }
@@ -184,14 +239,14 @@ int startlogin(char username[100]){
 }
     }
     else{
-    mvwprintw(window, 2, 1, "                                                                    ");
+    mvwprintw(window, 2, 1, "                                                      ");
    while (1)
 {
    mvwprintw(window, 1, 1, "Enter your username: ");
    wrefresh(window); 
    wgetstr(window, username);
    if(usernamevalid(username)){
-    mvwprintw(window, 2, 1, "                                                                     ");
+    mvwprintw(window, 2, 1, "                                                     ");
     wrefresh(window);
     break;
    }
@@ -210,7 +265,7 @@ int startlogin(char username[100]){
    wrefresh(window); 
    wgetstr(window, password);
    if(passwordvalid(password, username)){
-    mvwprintw(window, 4, 1, "                 ");
+    mvwprintw(window, 4, 1, "                  ");
     wrefresh(window);
     break;
    }
@@ -228,6 +283,7 @@ int startlogin(char username[100]){
   clear();
   delwin(window);
   nocbreak();
+  endwin();;
   return 1;
 
 }
