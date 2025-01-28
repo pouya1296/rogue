@@ -610,28 +610,32 @@ void printmessage(int hittype, int fire, int invalidcommand, int newlevel, int m
         mvprintw(1,middle_x - 8 , "Invalid command");
         refresh();
         attroff(COLOR_PAIR(1) | A_BOLD);}
-        else if(newlevel ==1){
-
-        }
     else{
         clearmessage();
-     if(hittype == 1){
+        if(hittype == 2){
+
+        attron(COLOR_PAIR(1) | A_BOLD);
+        if(monshp <=0)
+        mvprintw(0,middle_x - 10, "You killed the monster");
+        else
+        mvprintw(0,middle_x - 10, "You hit the monster! HP: %d", monshp);
+        refresh();
+        attroff(COLOR_PAIR(1) | A_BOLD);
+        hittype =0;
+    }
+     else if(hittype == 1){
         attron(COLOR_PAIR(1) | A_BOLD);
         mvprintw(0,middle_x - 12 , "The monster hit you hard!");
         refresh();
         attroff(COLOR_PAIR(1) | A_BOLD);
-    }
-    else if(hittype == 2){
-        attron(COLOR_PAIR(1) | A_BOLD);
-        mvprintw(0,middle_x - 10, "You hit the monster! HP: %d", monshp);
-        refresh();
-        attroff(COLOR_PAIR(1) | A_BOLD);
+        hittype =0;
     }
     else if(fire == 1){
         attron(COLOR_PAIR(1) | A_BOLD);
-        mvprintw(0,middle_x -11, "You picked up the gun!");
+        mvprintw(0,middle_x -11, "You picked up a weapon");
         refresh();
         attroff(COLOR_PAIR(1) | A_BOLD);
+        fire =0;
     }
     else if(fire == 2){
         attron(COLOR_PAIR(1) | A_BOLD);
@@ -2122,10 +2126,18 @@ void spelllist(data* game){
     }
 }
 
-void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom, int dontchoose, int* hittype,int* monshp, int* spellcounter, int* isspeed){
+void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,room rooms[4][6], int * playerhp, int *level, int* invalid, char password[], int* passwordmode, int* passend, int* ancient, int* brokenancient, position* save, int color, data* game, int* dontpick, int* win, int* newroom, int dontchoose, int* hittype,int* monshp, int* spellcounter, int* isspeed, int* fire){
     int copyx = player->x;
     int copyy = player ->y;
     int roomsnum = roomsearch(rooms[*level], player->x, player->y);
+    if(roomsnum == -1){
+        for(int i =0; i<6; i++){
+            for(int j =0; j<6; j++){
+        rooms[*level][i].mons[j].movement =0;
+        }
+        }
+    }
+
     if(game->isdamagespell ==1){
         (*spellcounter) += 1;
         if((*spellcounter) == 11){
@@ -2135,7 +2147,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
    
     if((input == 'l')&&(game->lastkey !=0)){
-        handleinput(player, map, 123, rooms, playerhp, level, invalid, password, passwordmode, passend , ancient, brokenancient, save, color, game, dontpick,win, newroom, dontchoose, hittype, monshp, spellcounter, isspeed);    
+        handleinput(player, map, 123, rooms, playerhp, level, invalid, password, passwordmode, passend , ancient, brokenancient, save, color, game, dontpick,win, newroom, dontchoose, hittype, monshp, spellcounter, isspeed,fire);    
     }
     
     if(input == 'w'){
@@ -2350,7 +2362,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
         {
             savex = player->x;
             savey = player->y;
-            handleinput(player, map, key,rooms,playerhp,level, invalid, password, passwordmode,passend,ancient,brokenancient, save,color, game, dontpick, win, newroom, 1, hittype, monshp, spellcounter, isspeed);
+            handleinput(player, map, key,rooms,playerhp,level, invalid, password, passwordmode,passend,ancient,brokenancient, save,color, game, dontpick, win, newroom, 1, hittype, monshp, spellcounter, isspeed, fire);
             printmap(map[*level], *player, color, rooms[*level], game->realmap[*level], *level);
             refresh();
         }}
@@ -2635,7 +2647,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
   
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     
@@ -2803,7 +2815,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
   
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     
@@ -2966,7 +2978,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
   
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     
@@ -3162,7 +3174,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
   
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     
@@ -3329,7 +3341,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
   
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed,fire);
         break;
     }
     
@@ -3491,7 +3503,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     }
   
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     
@@ -3962,10 +3974,11 @@ if(map[*level][player->x][player->y] == 'I'){
          if(rooms[*level][roomsearch(rooms[*level], player->x, player->y)].theme !=Nightmare)
          game->wlist[3].count = game->wlist[3].count + 1;
     }
+    *fire =1;
     break;
     }
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     }}
@@ -3998,7 +4011,7 @@ if((map[*level][player->x][player->y ] >= '6')&& (map[*level][player->x][player-
     break;
     }
     else if(key != ERR){
-        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed);
+        handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
     }}
@@ -4030,6 +4043,7 @@ for(int i=0; i<6; i++){
         if(((player->x==rooms[*level][roomsnum].mons[i].pos.x)||(player->x==rooms[*level][roomsnum].mons[i].pos.x+1)||(player->x==rooms[*level][roomsnum].mons[i].pos.x-1))&&((player->y==rooms[*level][roomsnum].mons[i].pos.y)||(player->y==rooms[*level][roomsnum].mons[i].pos.y+1)||(player->y==rooms[*level][roomsnum].mons[i].pos.y-1))){
             game->playerhp -= (rooms[*level][roomsnum].mons[i].kind + 1) *1;
             game->recover =0;
+            *hittype =1;
         }
         else{
             if(((rooms[*level][roomsnum].mons[i].kind == GIANT )||(rooms[*level][roomsnum].mons[i].kind == UNDEED)||(rooms[*level][roomsnum].mons[i].kind == SNAKE))&&(rooms[*level][roomsnum].mons[i].dontmove ==0)){
@@ -4204,6 +4218,10 @@ time_t enchanttime =0;
 int enchantremaining =0;
 int fremaining = 0;
 int spellremain =0;
+int input =0;
+int hittype =0;
+int fire =0; 
+int monshp =0;
 halfdelay(10);
 while(1){
 
@@ -4351,10 +4369,7 @@ if(game.ishealthspell){
 
 
     clear();
-int input =0;
-int hittype =0;
-int fire =0; 
-int monshp =0;
+
 if(passwordmode == 1){
     temptime = time(NULL);
     passwordmode =0;
@@ -4395,16 +4410,15 @@ isold =0;
 }
 printmap(game.map[game.level], game.player, game.color, game.rooms[game.level], game.realmap[ game.level], game.level);
 printmessage(hittype, fire, invalid, newlevel,monshp);
+fire =0;
+hittype =0;
+invalid =0;
+newlevel =0;
 health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
-        if(newroom){
-    newroom =0;
-    attron(COLOR_PAIR(1)| A_BOLD);
-    mvprintw(1, COLS/2 -5, "New Room!");
-    attroff(COLOR_PAIR(1)| A_BOLD);
-}
+
 refresh();
-newlevel =0;
+
 
 
 input = getch();
@@ -4421,7 +4435,7 @@ if(input == 27){
 }
  else{
     goldsave = game.gold;
-     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save,game.color, &game, &dontpick, &win, &newroom,0, &hittype, &monshp, &game.spellcounter, &game.isspeedspell);
+     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save,game.color, &game, &dontpick, &win, &newroom,0, &hittype, &monshp, &game.spellcounter, &game.isspeedspell, &fire);
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
@@ -4574,6 +4588,9 @@ game.isspeedspell =0;
 game.isdamagespell =0;
 int spellremain =0;
 game.lastkey =0;
+int input =0;
+int hittype =0;
+int fire =0; 
 for(int i=0; i<6; i++){
 game.flist[i].fkind =NORMAL;
 }
@@ -4723,9 +4740,7 @@ if(game.ishealthspell){
 }
 
 
-int input =0;
-int hittype =0;
-int fire =0; 
+
 if(passwordmode == 1){
     temptime = time(NULL);
     passwordmode =0;
@@ -4766,14 +4781,13 @@ isold =0;
 
 printmap(game.map[game.level], game.player, color, game.rooms[game.level], game.realmap[ game.level], game.level);
 printmessage(hittype, fire, invalid, newlevel, monshp);
+fire =0;
+hittype =0;
+invalid =0;
+newlevel =0;
 health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
-        if(newroom){
-    newroom =0;
-    attron(COLOR_PAIR(1)| A_BOLD);
-    mvprintw(1, COLS/2 -5, "New Room!");
-    attroff(COLOR_PAIR(1)| A_BOLD);
-}
+
 refresh();
 newlevel =0;
 
@@ -4793,7 +4807,7 @@ if(input == 27){
 }
  else{
     goldsave = game.gold;
-     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save, game.color, &game, &dontpick, &win, &newroom, 0, &hittype, &monshp, &game.spellcounter, &game.isspeedspell);
+     handleinput(&game.player, game.map, input, game.rooms, &game.playerhp, &game.level, &invalid, password, &passwordmode, &passend, &game.ancient, &game.brokenancient, &save, game.color, &game, &dontpick, &win, &newroom, 0, &hittype, &monshp, &game.spellcounter, &game.isspeedspell, &fire);
      if(passwordmode == 1){
         pass(password, game,invalid, 0, username);
      }
@@ -4816,6 +4830,7 @@ if(game.endgame == 1){
     break;
 }
 }
+
 cbreak();
 if(win && game.endgame){
     clear();
