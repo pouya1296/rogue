@@ -47,6 +47,45 @@ void printlogin() {
 }
 
 
+void printarc() {
+    char text[][100] = {
+
+"    __________________________",
+"   |OFFo oON                  |",
+"   | .----------------------. |",
+"   | |  .----------------.  | |",
+"   | |  |                |  | |",
+"   | |))|                |  | |",
+"   | |  |                |  | |",
+"   | |  |                |  | |",
+"   | |  |                |  | |",
+"   | |  |                |  | |",
+"   | |  |                |  | |",
+"   | |  '----------------'  | |",
+"   | |__GAME BOY____________/ |",
+"   |          ________        |",
+"   |    .    (Nintendo)       |",
+"   |  _| |_   \"\"\"\"\"\"\"\"   .-.  |",
+"   |-[_   _]-       .-. (   ) |",
+"   |   |_|         (   ) '-'  |",
+"   |    '           '-'   A   |",
+"   |                 B        |",
+"   |          ___   ___       |",
+"   |         (___) (___)  ,., |",
+"   |        select start ;:;: |",
+"   |                    ,;:;' /",
+"   |                   ,:;:'.'",
+"   '-----------------------`"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2 + 2;
+    int startx = COLS -32;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
 
 
 
@@ -177,6 +216,7 @@ int startlogin(char username[100]){
    wbkgd(window, COLOR_PAIR(1));
    attron(COLOR_PAIR(1));
    printshape();
+   printarc();
    printlogin();
    attroff(COLOR_PAIR(1));
    refresh();

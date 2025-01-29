@@ -136,6 +136,70 @@ int recover;
 #include <ncurses.h>
 #include <string.h>
 
+void printsoldierleft() {
+    char text[][100] = {
+"  ,   A           {}",
+" / \\, | ,        .--.",
+"|    =|= >      /.--.\\",
+" \\ /` | `       |====|",
+"  `   |         |`::`|",
+"      |     .-;`\\..../`;-.",
+"     /\\\\/  /  |...::...|  \\",
+"     |:'\\ |   /'''::'''\\   |",
+"      \\ /\\;-,/\\   ::   /\\--;",
+"      |\\ <` >  >._::_.<,<__>",
+"      | `""`  /   ^^   \\|  |",
+"      |       |        |\\::/",
+"      |       |        |/|||",
+"      |       |___/\\___| '''",
+"      |        \\_ || _/",
+"      |        <_ >< _>",
+"      |        |  ||  |",
+"      |        |  ||  |",
+"      |       _\\.:||:./_",
+"      |      /____/\\____\\"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2;
+    int startx = 1;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printsoldierright() {
+    char text[][100] = {
+"  ,   A           {}",
+" / \\, | ,        .--.",
+"|    =|= >      /.--.\\",
+" \\ /` | `       |====|",
+"  `   |         |`::`|",
+"      |     .-;`\\..../`;-.",
+"     /\\\\/  /  |...::...|  \\",
+"     |:'\\ |   /'''::'''\\   |",
+"      \\ /\\;-,/\\   ::   /\\--;",
+"      |\\ <` >  >._::_.<,<__>",
+"      | `""`  /   ^^   \\|  |",
+"      |       |        |\\::/",
+"      |       |        |/|||",
+"      |       |___/\\___| '''",
+"      |        \\_ || _/",
+"      |        <_ >< _>",
+"      |        |  ||  |",
+"      |        |  ||  |",
+"      |       _\\.:||:./_",
+"      |      /____/\\____\\"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2;
+    int startx = COLS -32;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
 void printquit() {
     char text[][100] = {
 "   ____    _    _   _____   _______ ",
@@ -149,6 +213,26 @@ void printquit() {
 
     int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
     int startx = (COLS - strlen(text[0])) / 2-2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printkill() {
+    char text[][100] = {
+
+"  _  _______ _      _         ____  _____    _____ _____ ______ ",
+" | |/ /_   _| |    | |       / __ \\|  __ \\  |  __ \\_   _|  ____|",
+" | ' /  | | | |    | |      | |  | | |__) | | |  | || | | |__   ",
+" |  <   | | | |    | |      | |  | |  _  /  | |  | || | |  __|  ",
+" | . \\ _| |_| |____| |____  | |__| | | \\ \\  | |__| || |_| |____ ",
+" |_|\\_\\_____|______|______|  \\____/|_|  \\_\\ |_____/_____|______|"
+                                                                                          
+    };
+
+    int starty = 1;
+    int startx = (COLS - strlen(text[0])) / 2;
 
     for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
         mvprintw(starty + i, startx, "%s", text[i]);
@@ -203,14 +287,14 @@ void printheart() {
         "⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀",
         "⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀",
         "⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀",
-        "⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠋⠀⠀⠀⠀⠀⠀",
         "⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀",
         "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
         "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
     };
 
     int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
-    int startx = (COLS - strlen(text[0])) / 2-2;
+    int startx = (COLS - strlen(text[0])) / 2+26;
 
     for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
         mvprintw(starty + i, startx, "%s", text[i]);
@@ -302,7 +386,7 @@ void printarrow() {
 
 void printsword() {
     char text[][100] = {
-"              />"
+"              />",
 " ()          //---------------------------------------------------------(",
 "(*)OXOXOXOXO(*>                                                          \\",
 " ()          \\\\-----------------------------------------------------------)",
@@ -310,7 +394,7 @@ void printsword() {
 };
 
     int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2 + 5;
-    int startx = (COLS - strlen(text[0])) / 2 + 2;
+    int startx = (COLS - strlen(text[0])) / 2 -30;
 
     for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
         mvprintw(starty + i, startx, "%s", text[i]);
@@ -4813,7 +4897,13 @@ invalid =0;
 newlevel =0;
 health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
-
+if(game.level == 4){
+    attron(COLOR_PAIR(6));
+    printsoldierleft();
+    printsoldierright();
+    printkill();
+    attroff(COLOR_PAIR(6));
+}
 refresh();
 
 
@@ -5227,7 +5317,13 @@ invalid =0;
 newlevel =0;
 health(&game);
 printinfo(game.playerhp, game.level, game.hits, game.gold, game.ancient, game.brokenancient, goldsave);
-
+if(game.level == 4){
+    attron(COLOR_PAIR(6));
+    printsoldierleft();
+    printsoldierright();
+     printkill();
+    attroff(COLOR_PAIR(6));
+}
 refresh();
 newlevel =0;
 

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <mysql/mysql.h>
 
 void printnew() {
     char text[][100] = {        
