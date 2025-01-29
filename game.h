@@ -13,6 +13,7 @@
 #define Treasure 1
 #define Enchant 2
 #define Nightmare 3
+#define purgatory 4
 #define maxx 151
 #define maxy 39
 #define middle_x COLS /2
@@ -91,14 +92,18 @@ int count;
 } spell;
 
 typedef struct{
-char map[4][152][40];
-char realmap[4][152][40];
+char map[5][152][40];
+char realmap[5][152][40];
 char username[100];
-room rooms[4][6];
+room rooms[5][6];
 position player;
 food flist[6];
 weapon wlist[6];
 spell slist[4];
+int lastx;
+int lasty;
+int lastlevel;
+int firstdie;
 int lastkey;
 int hunger;
 int foodamount;
@@ -130,6 +135,222 @@ int recover;
 
 #include <ncurses.h>
 #include <string.h>
+
+void printquit() {
+    char text[][100] = {
+"   ____    _    _   _____   _______ ",
+"  / __ \\  | |  | | |_   _| |__   __|",
+" | |  | | | |  | |   | |      | |   ",
+" | |  | | | |  | |   | |      | |   ",
+" | |__| | | |__| |  _| |_     | | "  ,
+"  \\___\\_\\  \\____/  |_____|    |_| "  
+                                    
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
+    int startx = (COLS - strlen(text[0])) / 2-2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printspeed() {
+    char text[][100] = {
+        "            zeeeeee-",
+        "            z$$$$$$\"",
+        "           d$$$$$$\"",
+        "          d$$$$$P",
+        "         d$$$$$P",
+        "        $$$$$$\"",
+        "      .$$$$$$\"",
+        "     .$$$$$$\"",
+        "    4$$$$$$$$$$$$$\"",
+        "   z$$$$$$$$$$$$$\"",
+        "   \"\"\"\"\"\"\"3$$$$$\"",
+        "         z$$$$P",
+        "        d$$$$\"",
+        "      .$$$$$\"",
+        "     z$$$$$\"",
+        "    z$$$$P",
+        "   d$$$$$$$$$$\"",
+        "  *******$$$\"",
+        "       .$$$\"",
+        "      .$$\"",
+        "     4$P\"",
+        "    z$\"",
+        "   zP",
+        "  z\"",
+        " /    ",
+        "^"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
+    int startx = (COLS - strlen(text[0])) / 2-2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printheart() {
+    char text[][100] = {
+        "⠀⠀⢀⣤⣾⣿⣿⣿⣿⣿⣶⣤⡀⢀⣤⣶⣿⣿⣿⣿⣿⣷⣤⡀⠀⠀",
+        "⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀",
+        "⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄",
+        "⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇",
+        "⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀",
+        "⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀",
+        "⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀",
+        "⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
+    int startx = (COLS - strlen(text[0])) / 2-2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printwand() {
+    char text[][100] = {
+        "        __",
+        "       ,. |_'",
+        "      / / /:\\ \\",
+        "    _/_/_/::: |",
+        "   /o_'/o>::/ /",
+        "   / /'/:::/ /",
+        "  / /_/::.'_/",
+        " / / \\__.-'              ",
+        "/ /                      ",
+        "/ /                        ",
+        " /"        
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
+    int startx = (COLS - strlen(text[0])) / 2 -2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printdagger() {
+    char text[][100] = {
+"   ___________________________________ ______________________",
+"  \\                                  | (_)     (_)    (_)   \\",
+"  `.                                |  __________________   }",
+"    `-..........................____|_(                  )_/"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2 + 5;
+    int startx = (COLS - strlen(text[0])) / 2+2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printmace() {
+    char text[][100] = {
+        "                                           _.gd8888888bp._                  ",
+        "                                        .g88888888888888888p.               ",
+        "                                     .d8888P\"\"       \"\"Y8888b.            ",
+        "                                   \"Y8P\"               \"Y8P'            ",
+        "                                        `.               ,'                ",
+        "                                          \\     .-.     /                  ",
+        "                                           \\   (___)   /                   ",
+        ".------------------._______________________:__________j",
+        "/                   |                      |           |`-.,_",
+        "\\###################|######################|###########|,-'`",
+        " `------------------'                       :    ___   l",
+        "                                            /   (   )   \\",
+        "                                           /     `-'     \\",
+        "                                         ,'               `.",
+        "                                      .d8b.               .d8b.",
+        "                                      \"Y8888p..       ,.d8888P\"",
+        "                                        \"Y88888888888888888P\"",
+        "                                           \"\"YY8888888PP\"\"   "
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
+    int startx = (COLS - strlen(text[0])) / 2+4;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printarrow() {
+    char text[][100] = {
+        ">>>>>>>_____________________\\`-._",
+        ">>>>>>>                     /.-'"
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5;
+    int startx = (COLS - strlen(text[0])) / 2+2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printsword() {
+    char text[][100] = {
+"              />"
+" ()          //---------------------------------------------------------(",
+"(*)OXOXOXOXO(*>                                                          \\",
+" ()          \\\\-----------------------------------------------------------)",
+"              \\\\>"
+};
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2 + 5;
+    int startx = (COLS - strlen(text[0])) / 2 + 2;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printbio() {
+    char text[][100] = {        
+"                       __    _                                    ",
+"                    _wr\"\"        \"-q__                             ",
+"                 _dP                 9m_     ",
+"               _#P                     9#_                         ",
+"              d#@                       9#m                        ",
+"             d##                         ###                      ",
+"            J###                         ###L                     ",
+"            {###K                       J###K                     ",
+"            ]####K      ___aaa___      J####F                     ",
+"        __gmM######_  w#P\"\"   \"\"9#m  _d#####Mmw__                ",
+"     _g##############mZ_         __g##############m_              ",
+"   _d####M@PPPP@@M#######Mmp gm#########@@PPP9@M####m_            ",
+"  a###\"\"          ,Z\"#####@\" '######\"\\g          \"\"M##m           ",
+" J#@\"             0L  \"*##     ##@\"  J#              *#K           ",
+" #\"               `#    \"_gmwgm_~    dF               `#_          ",
+"7F                 \"#_   ]#####F   _dK                 JE          ",
+"]                    *m__ ##### __g@\"                   F          ",
+"                       \"PJ#####LP\"                                 ",
+" `                       0######_                      '           ",
+"                       _0########_                                ",
+"     .               _d#####^#####m__              ,              ",
+"      \"*w_________am#####P\"   ~9#####mw_________w*\"                ",
+"          \"\"9@#####@M\"\"           \"\"P@#####@M\"\" "
+    };
+
+    int starty = (LINES - sizeof(text) / sizeof(text[0])) / 2+5 ;
+    int startx = (COLS - strlen(text[0])) / 2 + 4;
+
+    for (int i = 0; i < sizeof(text) / sizeof(text[0]); i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
 
 void printttt(char username[], int score) {
     char text[][200] = {
@@ -681,6 +902,10 @@ else if(number == 7){
 }
 else if(number == 8){
     Mix_Music *music = Mix_LoadMUS("./thumb.mp3");
+    Mix_PlayMusic(music, -1);
+}
+else if(number == 10){
+    Mix_Music *music = Mix_LoadMUS("./rains.mp3");
     Mix_PlayMusic(music, -1);
 }
 
@@ -1514,6 +1739,9 @@ void starttheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int lev
         else if(rooms[i].theme == Nightmare){
             attron(COLOR_PAIR(3));
         }
+        else if(rooms[i].theme == purgatory){
+            attron(COLOR_PAIR(5));
+        }
         else{
             attron(COLOR_PAIR(4));
         }
@@ -1600,6 +1828,9 @@ void endtheme(char map[maxx +1][maxy + 1], int x, int y, room rooms[], int level
         }
         else if(rooms[i].theme == Nightmare){
             attroff(COLOR_PAIR(3));
+        }
+        else if(rooms[i].theme == purgatory){
+            attron(COLOR_PAIR(5));
         }
         else{
             attroff(COLOR_PAIR(4));
@@ -1890,9 +2121,9 @@ void weaponlist(data* game){
          clear();
          curs_set(false);
          noecho();
-    int boxheight = 25;
-    int boxwidth = 80;
-    int y_box = (LINES - boxheight) /2;
+    int boxheight = 30;
+    int boxwidth = 100;
+    int y_box =  5+(LINES - boxheight) /2;
     int x_box = (COLS - boxwidth) /2;
 
     WINDOW *window = newwin(boxheight, boxwidth, y_box, x_box);
@@ -1949,6 +2180,27 @@ void weaponlist(data* game){
             
         }
         wrefresh(window);
+        attron(COLOR_PAIR(1) | A_BOLD);
+         if(choice == 4){
+    printsword();
+        }
+         else if(choice == 3){
+   printarrow();
+        }
+             else if(choice == 2){
+   printwand();
+        }
+             else if(choice == 1){
+   printdagger();
+        }
+             else if(choice == 0){
+   printmace();
+        }
+        else if(choice == 5)
+        printquit();
+        attroff( COLOR_PAIR(1) | A_BOLD);
+
+        refresh();
 
         int key = getch();
         if(key != ERR){
@@ -2015,9 +2267,9 @@ void spelllist(data* game){
          clear();
          curs_set(false);
          noecho();
-    int boxheight = 25;
-    int boxwidth = 80;
-    int y_box = (LINES - boxheight) /2;
+    int boxheight = 30;
+    int boxwidth = 100;
+    int y_box = 5 + (LINES - boxheight) /2;
     int x_box = (COLS - boxwidth) /2;
 
     WINDOW *window = newwin(boxheight, boxwidth, y_box, x_box);
@@ -2045,6 +2297,7 @@ void spelllist(data* game){
     attron(COLOR_PAIR(1) | A_BOLD);
     printspell();
     attroff( COLOR_PAIR(1) | A_BOLD);
+
         for(int i =0; i<4; i++){
             if(i == choice){
                 wattron(window, A_REVERSE);
@@ -2060,6 +2313,20 @@ void spelllist(data* game){
             
         }
         wrefresh(window);
+           attron(COLOR_PAIR(3) | A_BOLD);
+        if(choice == 2){
+    printbio();
+        }
+        else if(choice == 1){
+            printspeed();
+        }
+        else if(choice == 0){
+            printheart();
+        }
+        else if(choice == 3)
+        printquit();
+        attroff( COLOR_PAIR(3) | A_BOLD);
+        refresh();
 
         int key = getch();
         if(key != ERR){
@@ -2531,6 +2798,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2565,6 +2834,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2598,6 +2869,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2631,6 +2904,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2695,6 +2970,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2730,6 +3007,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2764,6 +3043,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2798,6 +3079,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2862,6 +3145,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2896,6 +3181,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2929,6 +3216,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -2962,6 +3251,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3058,6 +3349,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3092,6 +3385,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3125,6 +3420,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3158,6 +3455,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3221,6 +3520,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3256,6 +3557,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3290,6 +3593,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3324,6 +3629,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3387,6 +3694,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3421,6 +3730,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3454,6 +3765,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -3487,6 +3800,8 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
             break;
         }
         }
+        if(ishit)
+        break;
       }
       if(ishit ==0){
     *hittype = 0;
@@ -4166,6 +4481,50 @@ void reverspass(char password[], char copypass[]){
     }
 }
 
+void makepurgatory(char map[maxx + 1][maxy + 1], room rooms[]){
+    rooms[0].bottomleft.x = COLS/2 - 12;
+    rooms[0].bottomleft.y = LINES /2 + 12;
+    rooms[0].bottomright.x = COLS/2 +12;
+    rooms[0].bottomright.y  = rooms[0].bottomleft.y ;
+    rooms[0].topleft.x = rooms[0].bottomleft.x;
+    rooms[0].topleft.y = LINES/2 - 12;
+    rooms[0].topright.x = rooms[0].bottomright.x;
+    rooms[0].topright.y = rooms[0].topleft.y;
+    for(int i =0; i< maxx; i++){
+        for(int j=0; j<maxy; j++){
+            map[i][j] = 0;
+        }
+    }
+    for(int i=rooms[0].bottomleft.x; i<=rooms[0].bottomright.x; i++){
+        map[i][rooms[0].bottomleft.y] = '_';
+    }
+    for(int i=rooms[0].topleft.x+1; i<rooms[0].topright.x; i++){
+        map[i][rooms[0].topleft.y] = '_';
+    }
+    for(int i=rooms[0].topleft.y+1; i<=rooms[0].bottomleft.y; i++){
+        map[rooms[0].bottomleft.x][i] = '|';
+        map[rooms[0].bottomright.x][i] = '|';
+
+    }
+    for(int i=rooms[0].topleft.y+ 1; i<rooms[0].bottomleft.y; i++){
+        for(int j=rooms[0].topleft.x + 1; j<rooms[0].topright.x; j++){
+            map[j][i] = '.';
+        }
+
+    }
+    rooms[0].theme = purgatory;
+    for(int i =0; i<6; i++){
+        rooms[0].mons[i].hp = 20;
+        rooms[0].mons[i].kind = SNAKE;
+        rooms[0].mons[i].pos.x = rooms[0].bottomleft.x +1+ 4*(i);
+        rooms[0].mons[i].pos.y = rooms[0].topleft.y + 1+ 3*i;
+    }
+    rooms[0].isvisible = 1;
+
+
+    
+}
+
 
 void startloadedgame(char username[]){
 initscr();
@@ -4207,6 +4566,7 @@ int isenchant =0;
 int isnight =0;
 int istreasure =0;
 int isregular =0;
+int ispurgatory =0;
 game.savelevel =0;
 int newlevel =0;
 int newroom =0;
@@ -4224,6 +4584,11 @@ int fire =0;
 int monshp =0;
 halfdelay(10);
 while(1){
+if(game.level != 4){
+    game.lastlevel = game.level;
+    game.lastx = game.player.x;
+    game.lasty = game.player.y;
+    }
 
         for(int i=0; i<6; i++){
             if((game.flist[i].fkind == NORMAL) && (difftime(time(NULL), game.flist[i].ftime)> 40)){
@@ -4239,19 +4604,7 @@ while(1){
             strcpy(game.flist[i].name, "Normal");
             }
        }
-
-    if(game.playerhp <= 0){
-        game.endgame =1;
-        if(updateUser(username, &game)){
-
-    }
-    else
-    adduser(&game);
-    savegame(username, &game);
-    break;
-        break;
-    }
-    
+  
     if(game.level>game.savelevel){
     game.savelevel =game.level;
     newlevel =1;
@@ -4316,6 +4669,7 @@ else{
    istreasure = 0; 
 }}
 
+if(game.level !=4){
 
 if(ishungry){
     game.recover =0;
@@ -4349,7 +4703,49 @@ if(game.hunger>55){
 
 else
 ishungry =0;
+}
 
+if(game.level == 4){
+
+if(game.music != 9){
+    if(ispurgatory == 0){
+    endmusic();
+    startmusic(10);}
+}
+ispurgatory =1;
+    int backtogame =1;
+    for(int i =0; i<6; i++){
+        if(game.rooms[4][0].mons[i].hp>0)
+        backtogame =0;
+    }
+    if(backtogame){
+        game.level = game.lastlevel;
+        ispurgatory =0;
+        game.player.x =game.lastx;
+        game.player.y = game.lasty;
+        endmusic();
+    }
+}
+
+if(game.playerhp <= 0){
+        if(game.firstdie == 1){
+        game.endgame =1;
+        if(updateUser(username, &game)){
+
+    }
+    else
+    adduser(&game);
+    savegame(username, &game);
+    break;}
+    else{
+        game.firstdie = 1;
+        game.playerhp = 75;
+        game.level = 4;
+        game.player.x = game.rooms[4][0].bottomleft.x + 1;
+        game.player.y = game.rooms[4][0].bottomleft.y - 1;
+    }
+    }
+  
 if(game.ishealthspell){
     if(game.spellcounter<=10){
     spellremain = (int)difftime(time(NULL), spelltime);
@@ -4408,6 +4804,7 @@ if(passend){
 changepass = 0;
 isold =0;
 }
+
 printmap(game.map[game.level], game.player, game.color, game.rooms[game.level], game.realmap[ game.level], game.level);
 printmessage(hittype, fire, invalid, newlevel,monshp);
 fire =0;
@@ -4440,13 +4837,14 @@ if(input == 27){
         pass(password, game,invalid, 0, username);
      }
 }
+
 if(game.endgame == 1){
     game.totalscore += game.gold *(game.difficulty +1);
     game.experience += (int)difftime(time(NULL), starttime);
     game.totalgold += game.gold;
     game.numberofgames +=1;
     if(win)
-    game.totalscore +=100;
+    game.totalscore +=(1+game.difficulty)*100;
     if(updateUser(username, &game)){
 
     }
@@ -4525,7 +4923,7 @@ if(!isguest){
         game.totalgold =0;
     }
 }
-for(int i =0; i<4; i++){
+for(int i =0; i<5; i++){
 initializemap(game.map[i]);
 initializemap(game.realmap[i]);
 }
@@ -4543,13 +4941,16 @@ game.brokenancient =0;
  game.endgame =0;
  game.foodamount =0;
 game.hunger =0;
-for(int j =0; j<4; j++){
+game.firstdie =0;
+game.lastlevel=0;
+for(int j =0; j<5; j++){
 for(int i =0; i<game.numberofrooms; i++){
 initializerooms(&(game.rooms[j][i]));}}
 for(int i =0; i<4; i++){
 makerandomroom(game.rooms[i], game.numberofrooms, &game.player, i);
 makemap(game.map[i],game.rooms[i], game.numberofrooms, game.player ,i);
 makecorridor(game.map[i], game.rooms[i], game.numberofrooms);}
+makepurgatory(game.map[4], game.rooms[4]);
 int invalid =0;
 char password[4] = {0};
 char copypass[4] = {0};
@@ -4570,6 +4971,7 @@ int isnight =0;
 int istreasure =0;
 int isregular =0;
 int newlevel =0;
+int ispurgatory =0;
 game.savelevel =0;
 int newroom =0;
 int ishungry =0;
@@ -4599,6 +5001,11 @@ int fremaining =0;
 
 halfdelay(10);
 while(1){
+    if(game.level != 4){
+    game.lastlevel = game.level;
+    game.lastx = game.player.x;
+    game.lasty = game.player.y;
+    }
            for(int i=0; i<6; i++){
             if((game.flist[i].fkind == NORMAL) && (difftime(time(NULL), game.flist[i].ftime)> 40)){
             game.flist[i].fkind = POISENOUS;
@@ -4613,12 +5020,7 @@ while(1){
             strcpy(game.flist[i].name, "Normal");
             }
        }
-
-    if(game.playerhp <= 0){
-        game.endgame =1;
-        break;
-    }
-   
+    
     if(game.level>game.savelevel){
     game.savelevel =game.level;
     newlevel =1;
@@ -4636,6 +5038,7 @@ while(1){
     isregular =1;
     }
     }
+   
     else{
         isregular =0;
 if(game.rooms[game.level][roomnumber].theme != Nightmare){
@@ -4689,6 +5092,8 @@ else{
    istreasure = 0; 
 }}
 
+if(game.level !=4){
+
 if(ishungry){
     game.recover =0;
     hremaining = (int)difftime(time(NULL), htime);
@@ -4721,7 +5126,43 @@ if(game.hunger>55){
 
 else
 ishungry =0;
+}
 
+if(game.level == 4){
+
+if(game.music != 9){
+    if(ispurgatory == 0){
+    endmusic();
+    startmusic(10);}
+}
+ispurgatory =1;
+    int backtogame =1;
+    for(int i =0; i<6; i++){
+        if(game.rooms[4][0].mons[i].hp>0)
+        backtogame =0;
+    }
+    if(backtogame){
+        game.level = game.lastlevel;
+        ispurgatory =0;
+        game.player.x =game.lastx;
+        game.player.y = game.lasty;
+        endmusic();
+    }
+}
+
+if(game.playerhp <= 0){
+        if(game.firstdie == 1){
+        game.endgame =1;
+        break;}
+        else{
+        game.firstdie =1;
+        game.playerhp =75;
+        game.level =4;
+        game.player.x = game.rooms[4][0].bottomleft.x + 1;
+        game.player.y = game.rooms[4][0].bottomleft.y - 1;
+        }
+    }
+ 
 if(game.ishealthspell){
     if(game.spellcounter<=10){
     spellremain = (int)difftime(time(NULL), spelltime);
@@ -4738,7 +5179,6 @@ if(game.ishealthspell){
         game.ishealthspell =0;
     }
 }
-
 
 
 if(passwordmode == 1){
@@ -4812,6 +5252,7 @@ if(input == 27){
         pass(password, game,invalid, 0, username);
      }
 }}
+  
 if(game.endgame == 1){
     if(!isguest){
     game.totalscore += game.gold *(game.difficulty + 1);
@@ -4819,7 +5260,7 @@ if(game.endgame == 1){
     game.numberofgames +=1;
     game.totalgold += game.gold;
     if(win)
-    game.totalscore +=100;
+    game.totalscore += (1+game.difficulty)*100;
     savegame(username, &game);
     if(updateUser(username, &game)){
 
