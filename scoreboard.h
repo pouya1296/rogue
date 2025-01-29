@@ -25,7 +25,7 @@ void printtr(char username[]) {
     int starty = 0;
     int startx =  30 +(COLS - strlen(art[0])) / 2;
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 17; i++) {
         mvprintw(starty + i, startx, "%s", art[i]);
         if(i == 2){
             for(int j = 0; j<strlen(username); j++){
@@ -47,6 +47,104 @@ int loadlusers(data users[]) {
     return userCount;
 }
 
+void printsolright() {
+    char text[][100] = {
+"              {}",
+"             {{}}",
+"             {{}}",
+"              {}",
+"            .-''-.",
+"           /  __  \\",
+"          /.-'  '-.\\",
+"          \\::.  .::/",
+"           \\'    '/",
+"      __ ___)    (___ __",
+"    .'   \\\\        //   `.",
+"   /     | '-.__.-' |     \\",
+"   |     |  '::::'  |     |",
+"   |    /    '::'    \\    |",
+"   |_.-;\\     __     /;-._|",
+"   \\.'^`\\\\    \\/    //`^'./",
+"   /   _.-._ _||_ _.-._   \\",
+"  `\\___\\    '-..-'    /___/`",
+"       /'---.  `\\.---'\\",
+"      ||    |`\\\\\\|    ||",
+"      ||    | || |    ||",
+"      |;.__.' || '.__.;|",
+"      |       ||       |",
+"      {{{{{{{{||}}}}}}}}",
+"       |      ||      |",
+"       |.-==-.||.-==-.|",
+"       <.    .||.    .>",
+"        \\'=='/||\\'=='/",
+"        |   / || \\   |",
+"        |   | || |   |",
+"        |   | || |   |",
+"        /^^\\| || |\\/^^\\",
+"       /   .' || '.   \\",
+"      /   /   ||   \\   \\",
+"     (__.'    \\/    '.__)",
+
+    };
+
+    int len = sizeof(text) / sizeof(text[0]);
+    int starty = (LINES - len) / 2;
+    int startx = COLS - strlen(text[0]) - 12;
+
+    for (int i = 0; i < len; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
+void printsolleft() {
+    char text[][100] = {
+"              {}",
+"             {{}}",
+"             {{}}",
+"              {}",
+"            .-''-.",
+"           /  __  \\",
+"          /.-'  '-.\\",
+"          \\::.  .::/",
+"           \\'    '/",
+"      __ ___)    (___ __",
+"    .'   \\\\        //   `.",
+"   /     | '-.__.-' |     \\",
+"   |     |  '::::'  |     |",
+"   |    /    '::'    \\    |",
+"   |_.-;\\     __     /;-._|",
+"   \\.'^`\\\\    \\/    //`^'./",
+"   /   _.-._ _||_ _.-._   \\",
+"  `\\___\\    '-..-'    /___/`",
+"       /'---.  `\\.---'\\",
+"      ||    |`\\\\\\|    ||",
+"      ||    | || |    ||",
+"      |;.__.' || '.__.;|",
+"      |       ||       |",
+"      {{{{{{{{||}}}}}}}}",
+"       |      ||      |",
+"       |.-==-.||.-==-.|",
+"       <.    .||.    .>",
+"        \\'=='/||\\'=='/",
+"        |   / || \\   |",
+"        |   | || |   |",
+"        |   | || |   |",
+"        /^^\\| || |\\/^^\\",
+"       /   .' || '.   \\",
+"      /   /   ||   \\   \\",
+"     (__.'    \\/    '.__)",
+
+    };
+
+    int len = sizeof(text) / sizeof(text[0]);
+    int starty = (LINES - len) / 2;
+    int startx = 1;
+
+    for (int i = 0; i < len; i++) {
+        mvprintw(starty + i, startx, "%s", text[i]);
+    }
+}
+
 int ranksearch(data users[], int usercount, int rank){
     for(int i =0 ; i<usercount; i++){
         if(users[i].rank == rank){
@@ -54,6 +152,7 @@ int ranksearch(data users[], int usercount, int rank){
         }
     }
 }
+
 void startscore(char username[]){
     initscr();
     noecho();
@@ -83,17 +182,19 @@ for(int i =0; i<usercount; i++){
     keypad(window, TRUE);
     wbkgd(window, COLOR_PAIR(1));
      box(window, 0, 0);
+     attron(COLOR_PAIR(3));
+        printtr(user[0].username);
+        printsolleft();
+         printsolright();
+        attroff(COLOR_PAIR(3));
     int key = 0;
     int start = 0;
     int max = height -2;
     refresh();
     while (key!= 27) {
-        
-        werase(window);
-        box(window, 0, 0);
-        attron(COLOR_PAIR(3));
-        printtr(user[0].username);
-        attroff(COLOR_PAIR(3));
+        wclear(window);
+        wbkgd(window, COLOR_PAIR(1));
+            box(window, 0, 0);
         wattron(window, COLOR_PAIR(4));
          mvwprintw(window, 1, 1, "RANK      USERNAME           TOTALSCORE       GOLD      GAMES      EXPERIENCE");
          wattroff(window, COLOR_PAIR(4));
