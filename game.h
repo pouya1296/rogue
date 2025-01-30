@@ -1207,7 +1207,6 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
             map[rooms[3].bottomleft.x + 1][rooms[3].bottomleft.y -1 ] = '<';
         }
 
-
         for(int i =0; i<6; i++){
             
             if(rooms[i].theme == Regular){
@@ -1501,7 +1500,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                  
                  int ismons = rand()%4;
                 if(ismons){
-                    if(ismons){
+                    if(1){
                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
                     if(map[monsx][monsy] == '.'){
@@ -1512,7 +1511,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].monsnum++;
                         map[monsx][monsy] = 'S';
                     }}
-                    if(ismons){
+                    if(1){
                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 7;
                     int monsy = rooms[i].topleft.y + 1 + rand() % 7;
                     if(map[monsx][monsy] == '.'){
@@ -1523,7 +1522,7 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].monsnum++;
                         map[monsx][monsy] = 'S';
                     }}
-                    if(ismons){
+                    if(1){
                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 7;
                     int monsy = rooms[i].topleft.y + 1 + rand() % 7;
                     if(map[monsx][monsy] == '.'){
@@ -1534,9 +1533,9 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].monsnum++;
                         map[monsx][monsy] = 'F';
                     }}
-                      if(ismons >=2){
-                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
-                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                      if(1){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 7;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 7;
                     if(map[monsx][monsy] == '.'){
                         rooms[i].mons[rooms[i].monsnum].kind = UNDEED;
                         rooms[i].mons[rooms[i].monsnum].hp = 30;
@@ -1545,9 +1544,9 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].monsnum++;
                         map[monsx][monsy] = 'U';
                     }}
-                      if(ismons == 3){
-                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 5;
-                     int monsy = rooms[i].topleft.y + 1 + rand() % 5;
+                      if(1){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 7;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 7;
                     if(map[monsx][monsy] == '.'){
                         rooms[i].mons[rooms[i].monsnum].kind = GIANT;
                         rooms[i].mons[rooms[i].monsnum].hp = 15;
@@ -1555,6 +1554,17 @@ void makemap(char map[maxx + 1][maxy + 1], room rooms[], int numberofrooms, posi
                         rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
                         rooms[i].monsnum++;
                         map[monsx][monsy] = 'G';
+                    }}
+                    if(ismons <= 2){
+                     int monsx = rooms[i].bottomleft.x + 1 + rand() % 7;
+                     int monsy = rooms[i].topleft.y + 1 + rand() % 7;
+                    if(map[monsx][monsy] == '.'){
+                        rooms[i].mons[rooms[i].monsnum].kind = SNAKE;
+                        rooms[i].mons[rooms[i].monsnum].hp = 20;
+                        rooms[i].mons[rooms[i].monsnum].pos.x = monsx;
+                        rooms[i].mons[rooms[i].monsnum].pos.y = monsy;
+                        rooms[i].monsnum++;
+                        map[monsx][monsy] = 'S';
                     }}
                 }
 
@@ -3005,7 +3015,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
       break;
     }
   
-    else if(key != ERR){
+    else if((key != ERR)&&(key != 32)){
         handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
@@ -3181,7 +3191,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
     
     }
   
-    else if(key != ERR){
+    else if((key != ERR)&&(key != 32)){
         handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
@@ -3352,7 +3362,7 @@ void handleinput(position* player, char map[][maxx + 1][maxy+ 1], int input ,roo
       break;
     }
   
-    else if(key != ERR){
+    else if((key != ERR)&&(key != 32)){
         handleinput(player, map, key, rooms, playerhp, level, invalid, password, passwordmode, passend, ancient, brokenancient, save, color, game, dontpick, win, newroom,0, hittype, monshp, spellcounter, isspeed, fire);
         break;
     }
@@ -4810,26 +4820,7 @@ ispurgatory =1;
         endmusic();
     }
 }
-
-if(game.playerhp <= 0){
-        if(game.firstdie == 1){
-        game.endgame =1;
-        if(updateUser(username, &game)){
-
-    }
-    else
-    adduser(&game);
-    savegame(username, &game);
-    break;}
-    else{
-        game.firstdie = 1;
-        game.playerhp = 75;
-        game.level = 4;
-        game.player.x = game.rooms[4][0].bottomleft.x + 1;
-        game.player.y = game.rooms[4][0].bottomleft.y - 1;
-    }
-    }
-  
+ 
 if(game.ishealthspell){
     if(game.spellcounter<=10){
     spellremain = (int)difftime(time(NULL), spelltime);
@@ -4928,6 +4919,18 @@ if(input == 27){
      }
 }
 
+if(game.playerhp <= 0){
+        if(game.firstdie == 1){
+        game.endgame =1;}
+    else{
+        game.firstdie = 1;
+        game.playerhp = 75;
+        game.level = 4;
+        game.player.x = game.rooms[4][0].bottomleft.x + 1;
+        game.player.y = game.rooms[4][0].bottomleft.y - 1;
+    }
+    }
+ 
 if(game.endgame == 1){
     game.totalscore += game.gold *(game.difficulty +1);
     game.experience += (int)difftime(time(NULL), starttime);
@@ -5240,19 +5243,6 @@ ispurgatory =1;
     }
 }
 
-if(game.playerhp <= 0){
-        if(game.firstdie == 1){
-        game.endgame =1;
-        break;}
-        else{
-        game.firstdie =1;
-        game.playerhp =75;
-        game.level =4;
-        game.player.x = game.rooms[4][0].bottomleft.x + 1;
-        game.player.y = game.rooms[4][0].bottomleft.y - 1;
-        }
-    }
- 
 if(game.ishealthspell){
     if(game.spellcounter<=10){
     spellremain = (int)difftime(time(NULL), spelltime);
@@ -5348,6 +5338,21 @@ if(input == 27){
         pass(password, game,invalid, 0, username);
      }
 }}
+
+
+if(game.playerhp <= 0){
+        if(game.firstdie == 1){
+        game.endgame =1;
+       }
+        else{
+        game.firstdie =1;
+        game.playerhp =75;
+        game.level =4;
+        game.player.x = game.rooms[4][0].bottomleft.x + 1;
+        game.player.y = game.rooms[4][0].bottomleft.y - 1;
+        }
+    }
+ 
   
 if(game.endgame == 1){
     if(!isguest){
